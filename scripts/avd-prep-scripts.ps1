@@ -22,10 +22,10 @@ if (-not (Test-Path -Path $fslogixExtractPath)) {
 
 # Download the FSLogix zip file
 $fsLogixZipPath = Join-Path -Path $prepPath -ChildPath "fslogix.zip"
-Invoke-WebRequest -Uri "https://aka.ms/fslogix_download" -OutFile $fsLogixZipPath
+#####Invoke-WebRequest -Uri "https://aka.ms/fslogix_download" -OutFile $fsLogixZipPath
 
 # Extract the zip file to the specified path
-Expand-Archive -LiteralPath $fsLogixZipPath -DestinationPath $fslogixExtractPath -Force
+####Expand-Archive -LiteralPath $fsLogixZipPath -DestinationPath $fslogixExtractPath -Force
 
 # Find the FSLogixAppsSetup.exe file dynamically
 $fsLogixExePath = Get-ChildItem -Path $fslogixExtractPath -Recurse -Filter "FSLogixAppsSetup.exe" | Select-Object -ExpandProperty FullName -First 1
