@@ -27,8 +27,11 @@ $fsLogixZipPath = Join-Path -Path $prepPath -ChildPath "fslogix.zip"
 # Extract the zip file to the specified path
 ####Expand-Archive -LiteralPath $fsLogixZipPath -DestinationPath $fslogixExtractPath -Force
 
-# Find the FSLogixAppsSetup.exe file dynamically
-$fsLogixExePath = Get-ChildItem -Path $fslogixExtractPath -Recurse -Filter "FSLogixAppsSetup.exe" | Select-Object -ExpandProperty FullName -First 1
+# Find the FSLogixAppsSetup.exe file in the x64 directory
+$fsLogixExePath = Get-ChildItem -Path $fslogixExtractPath -Recurse -Filter "FSLogixAppsSetup.exe" | 
+                  Where-Object { $_.Directory.Name -eq "x64" } |
+                  Select-Object -ExpandProperty FullName -First 1
+
 
 if (-not [string]::IsNullOrEmpty($fsLogixExePath)) {
     # Silently execute the FSLogix installer
