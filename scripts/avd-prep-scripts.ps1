@@ -7,16 +7,20 @@ if (-not (Test-Path -Path $prepPath)) {
 # Define the URL for the timezone script
 $timezoneScriptUrl = "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Set%20timezone%20to%20Eastern/remediate-tx-is-eastern.ps1"
 
-# Download the timezone script
+# Download and execute the timezone script
 $timezoneScriptPath = Join-Path -Path $prepPath -ChildPath "remediate-tx-is-eastern.ps1"
 Invoke-WebRequest -Uri $timezoneScriptUrl -OutFile $timezoneScriptPath
-
-# Execute the downloaded timezone script
 & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $timezoneScriptPath
 
 # Download the FSLogix zip file
 $fsLogixZipPath = Join-Path -Path $prepPath -ChildPath "fslogix.zip"
 Invoke-WebRequest -Uri "https://aka.ms/fslogix_download" -OutFile $fsLogixZipPath
+
+# Ensure the extraction directory exists
+$fslogixExtractPath = Join-Path -Path $prepPath -ChildPath "fslogix"
+if (-not (Test-Path -Path $fslogixExtractPath)) {
+    New-Item -ItemType Directory -Path $fslogixExtractPath -Force | Out-Null
+}
 
 # Extract the zip file to the specified path
 Expand-Archive -LiteralPath $fsLogixZipPath -DestinationPath $fslogixExtractPath -Force
