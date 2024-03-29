@@ -35,3 +35,25 @@ if (-not [string]::IsNullOrEmpty($fsLogixExePath)) {
 } else {
     Write-Host "FSLogixAppsSetup.exe was not found after extraction."
 }
+
+# Function to download and execute the redistributable installer
+function Install-Redistributable {
+    param (
+        [string]$Architecture
+    )
+    
+    $redistUrl = "https://aka.ms/vs/17/release/vc_redist.$Architecture.exe"
+    $redistPath = Join-Path -Path $prepPath -ChildPath "vc_redist.$Architecture.exe"
+    
+    # Download the redistributable
+    Invoke-WebRequest -Uri $redistUrl -OutFile $redistPath
+    
+    # Start the installer
+    Start-Process -FilePath $redistPath -ArgumentList "/quiet", "/norestart" -Wait
+}
+
+# Install or update x86 redistributable
+Install-Redistributable -Architecture "x86"
+
+# Install or update x64 redistributable
+Install-Redistributable -Architecture "x64"
