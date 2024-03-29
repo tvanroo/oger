@@ -22,10 +22,10 @@ if (-not (Test-Path -Path $fslogixExtractPath)) {
 
 # Download the FSLogix zip file
 $fsLogixZipPath = Join-Path -Path $prepPath -ChildPath "fslogix.zip"
-#####Invoke-WebRequest -Uri "https://aka.ms/fslogix_download" -OutFile $fsLogixZipPath
+Invoke-WebRequest -Uri "https://aka.ms/fslogix_download" -OutFile $fsLogixZipPath
 
 # Extract the zip file to the specified path
-####Expand-Archive -LiteralPath $fsLogixZipPath -DestinationPath $fslogixExtractPath -Force
+Expand-Archive -LiteralPath $fsLogixZipPath -DestinationPath $fslogixExtractPath -Force
 
 # Specify the path to the FSLogixAppsSetup.exe file
 $fsLogixExePath = "C:\install\avd-prep\fslogix\x64\Release\FSLogixAppsSetup.exe"
@@ -33,11 +33,12 @@ $fsLogixExePath = "C:\install\avd-prep\fslogix\x64\Release\FSLogixAppsSetup.exe"
 
 if (-not [string]::IsNullOrEmpty($fsLogixExePath)) {
     # Silently execute the FSLogix installer
-    Start-Process -FilePath $fsLogixExePath -Wait
+    Start-Process -FilePath $fsLogixExePath -Wait -ArgumentList "/install", "/quiet", "/norestart"
     Write-Host "FSLogix has been installed/updated successfully."
 } else {
     Write-Host "FSLogixAppsSetup.exe was not found after extraction."
 }
+
 
 # Function to download and execute the redistributable installer
 function Install-Redistributable {
