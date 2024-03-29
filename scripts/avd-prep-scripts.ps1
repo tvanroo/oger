@@ -12,15 +12,17 @@ $timezoneScriptPath = Join-Path -Path $prepPath -ChildPath "remediate-tx-is-east
 Invoke-WebRequest -Uri $timezoneScriptUrl -OutFile $timezoneScriptPath
 & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $timezoneScriptPath
 
-# Download the FSLogix zip file
-$fsLogixZipPath = Join-Path -Path $prepPath -ChildPath "fslogix.zip"
-Invoke-WebRequest -Uri "https://aka.ms/fslogix_download" -OutFile $fsLogixZipPath
-
-# Ensure the extraction directory exists
+# Define the FSLogix extraction path
 $fslogixExtractPath = Join-Path -Path $prepPath -ChildPath "fslogix"
+
+# Create the extraction directory if it doesn't exist
 if (-not (Test-Path -Path $fslogixExtractPath)) {
     New-Item -ItemType Directory -Path $fslogixExtractPath -Force | Out-Null
 }
+
+# Download the FSLogix zip file
+$fsLogixZipPath = Join-Path -Path $prepPath -ChildPath "fslogix.zip"
+Invoke-WebRequest -Uri "https://aka.ms/fslogix_download" -OutFile $fsLogixZipPath
 
 # Extract the zip file to the specified path
 Expand-Archive -LiteralPath $fsLogixZipPath -DestinationPath $fslogixExtractPath -Force
