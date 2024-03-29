@@ -27,10 +27,8 @@ $fsLogixZipPath = Join-Path -Path $prepPath -ChildPath "fslogix.zip"
 # Extract the zip file to the specified path
 ####Expand-Archive -LiteralPath $fsLogixZipPath -DestinationPath $fslogixExtractPath -Force
 
-# Find the FSLogixAppsSetup.exe file in the x64 directory
-$fsLogixExePath = Get-ChildItem -Path $fslogixExtractPath -Recurse -Filter "FSLogixAppsSetup.exe" | 
-                  Where-Object { $_.Directory.Name -eq "x64" } |
-                  Select-Object -ExpandProperty FullName -First 1
+# Specify the path to the FSLogixAppsSetup.exe file
+$fsLogixExePath = "C:\install\avd-prep\fslogix\x64\Release\FSLogixAppsSetup.exe"
 
 
 if (-not [string]::IsNullOrEmpty($fsLogixExePath)) {
