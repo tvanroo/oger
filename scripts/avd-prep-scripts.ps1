@@ -18,15 +18,15 @@ Invoke-WebRequest -Uri $timezoneScriptUrl -OutFile $timezoneScriptPath
 $fsLogixZipPath = Join-Path -Path $prepPath -ChildPath "fslogix.zip"
 Invoke-WebRequest -Uri "https://aka.ms/fslogix_download" -OutFile $fsLogixZipPath
 
-# Extract the zip file
-Expand-Archive -LiteralPath $fsLogixZipPath -DestinationPath $prepPath -Force
+# Extract the zip file to the specified path
+Expand-Archive -LiteralPath $fsLogixZipPath -DestinationPath $fslogixExtractPath -Force
 
 # Find the FSLogixAppsSetup.exe file dynamically
-$fsLogixExePath = Get-ChildItem -Path $prepPath -Recurse -Filter "FSLogixAppsSetup.exe" | Select-Object -ExpandProperty FullName -First 1
+$fsLogixExePath = Get-ChildItem -Path $fslogixExtractPath -Recurse -Filter "FSLogixAppsSetup.exe" | Select-Object -ExpandProperty FullName -First 1
 
 if (-not [string]::IsNullOrEmpty($fsLogixExePath)) {
     # Silently execute the FSLogix installer
-    Start-Process -FilePath $fsLogixExePath -Arguments "/install /quiet /norestart" -Wait
+    Start-Process -FilePath $fsLogixExePath -ArgumentList "/install", "/quiet", "/norestart" -Wait
     Write-Host "FSLogix has been installed/updated successfully."
 } else {
     Write-Host "FSLogixAppsSetup.exe was not found after extraction."
