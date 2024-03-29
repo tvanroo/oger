@@ -37,14 +37,26 @@ $localDir = "C:\install" # This is the base directory where files will be downlo
 
 Download-GitHubDirectory -RepoOwner $repoOwner -RepoName $repoName -Path $path -LocalDir $localDir
 
+Import-Module ScheduledTasks
+
 $xmlFilePath = Join-Path -Path $localDir -ChildPath "silent-launch-export.xml"
-$taskName = "MyNewScheduledTask"
+$taskName = "FedScale Login Script Launcher"
+
+# Check if the scheduled task already exists and remove it if it does
+if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
+    Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
+    Write-Host "Existing task '$taskName' has been removed."
+}
 
 try {
     # Import the task into Task Scheduler
     if (Test-Path -Path $xmlFilePath) {
-        Register-ScheduledTask -Xml (Get-Content -Path $xmlFilePath -Raw) -TaskName $taskName
+        $task = Register-ScheduledTask -Xml (Get-Content -Path $xmlFilePath -Raw) -TaskName $taskName
         Write-Host "Task '$taskName' has been registered successfully."
+
+        # Ensure the task is enabled
+        Enable-ScheduledTask -TaskName $taskName
+        Write-Host "Task '$taskName' has been enabled."
     } else {
         Write-Host "The expected XML file was not found at: $xmlFilePath"
     }
