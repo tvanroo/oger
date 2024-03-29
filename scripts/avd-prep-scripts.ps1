@@ -32,7 +32,7 @@ $fsLogixExePath = Get-ChildItem -Path $fslogixExtractPath -Recurse -Filter "FSLo
 
 if (-not [string]::IsNullOrEmpty($fsLogixExePath)) {
     # Silently execute the FSLogix installer
-    Start-Process -FilePath $fsLogixExePath -ArgumentList "/install", "/quiet", "/norestart" -Wait
+    Start-Process -FilePath $fsLogixExePath -Wait
     Write-Host "FSLogix has been installed/updated successfully."
 } else {
     Write-Host "FSLogixAppsSetup.exe was not found after extraction."
