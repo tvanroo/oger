@@ -19,6 +19,7 @@ $fslogixExtractPath = Join-Path -Path $prepPath -ChildPath "fslogix"
 if (-not (Test-Path -Path $fslogixExtractPath)) {
     New-Item -ItemType Directory -Path $fslogixExtractPath -Force | Out-Null
 }
+<# Removed for testing
 
 # Download the FSLogix zip file
 $fsLogixZipPath = Join-Path -Path $prepPath -ChildPath "fslogix.zip"
@@ -61,10 +62,14 @@ Install-Redistributable -Architecture "x86"
 
 # Install or update x64 redistributable
 Install-Redistributable -Architecture "x64"
+#>
 
 # Enable AVD Teams Optimization
 New-Item -Path "HKLM:\SOFTWARE\Microsoft\Teams" -Force
-New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Teams" -Name IsWVDEnvironment -PropertyType DWORD -Value 1 -Force -Wait
+New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Teams" -Name IsWVDEnvironment -PropertyType DWORD -Value 1 -Force
 
 # Install/update WebRTC with latest version.
 Invoke-WebRequest -Uri "https://aka.ms/msrdcwebrtcsvc/msi" -OutFile "$prepPath\msrdcwebrtcsvc.msi"; Start-Process -FilePath "$prepPath\msrdcwebrtcsvc.msi" -ArgumentList "/quiet" -Wait
+
+# Enable Hyper-V feature
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All -Verbose
