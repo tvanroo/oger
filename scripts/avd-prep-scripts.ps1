@@ -110,12 +110,8 @@ $job = Start-Job -ScriptBlock {
     Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$msiPath`" /quiet /norestart" -Wait
 
 
-# Major Section: Enable Hyper-V Feature
-    # -----------------------------------------------------
-
-
 # Execute the function to enable Hyper-V
-    Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+    Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All -NoRestart
 
 
 # Major Section: Installing Microsoft 365
@@ -178,13 +174,10 @@ $job = Start-Job -ScriptBlock {
 
 # Major Section: Install/Update FSLogix 
      # -----------------------------------------------------
-    # Assuming the background job for downloading and extracting FSLogix has been started earlier in your script as described
     # Wait for the background job to complete before starting FSLogix installation
     Wait-Job -Job $job
     Receive-Job -Job $job
     Remove-Job -Job $job
-
-    # Major Section: Install/Update FSLogix 
     $fsLogixExePath = "$fslogixExtractPath\x64\Release\FSLogixAppsSetup.exe"
     if (Test-Path -Path $fsLogixExePath) {
         Start-Process -FilePath $fsLogixExePath -Wait -ArgumentList "/install", "/quiet", "/norestart"
