@@ -90,5 +90,11 @@ if (-not (Test-Path -Path $odtFolder)) {
 # Download the file
 Invoke-WebRequest -Uri $url -OutFile $localFilePath
 
-# Execute the downloaded file silently
-Start-Process -FilePath $localFilePath -ArgumentList "/quiet /extract:$odtFolder" -NoNewWindow -Wait
+# Ensure to adjust the path according to your $prepPath value and folder structure
+$extractPath = Join-Path -Path $prepPath -ChildPath "ODT"
+
+# Make sure to include quotes around the path if it contains spaces
+$arguments = "/passive /norestart /extract:`"$extractPath`""
+
+# Execute the downloaded file with specified arguments
+Start-Process -FilePath $localFilePath -ArgumentList $arguments -NoNewWindow -Wait
