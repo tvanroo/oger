@@ -61,3 +61,10 @@ Install-Redistributable -Architecture "x86"
 
 # Install or update x64 redistributable
 Install-Redistributable -Architecture "x64"
+
+# Enable AVD Teams Optimization
+New-Item -Path "HKLM:\SOFTWARE\Microsoft\Teams" -Force
+New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Teams" -Name IsWVDEnvironment -PropertyType DWORD -Value 1 -Force -Wait
+
+# Install/update WebRTC with latest version.
+Invoke-WebRequest -Uri "https://aka.ms/msrdcwebrtcsvc/msi" -OutFile "$prepPath\msrdcwebrtcsvc.msi"; Start-Process -FilePath "$prepPath\msrdcwebrtcsvc.msi" -ArgumentList "/quiet" -Wait
