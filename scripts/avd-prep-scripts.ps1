@@ -1,143 +1,103 @@
-# Ensure the directory exists
+# Ensure the AVD preparation directory exists
 $prepPath = "c:\install\avd-prep\"
 if (-not (Test-Path -Path $prepPath)) {
     New-Item -ItemType Directory -Path $prepPath -Force | Out-Null
 }
 
-<#
-# Define the URL for the timezone script
+# Major Section: Set Timezone to Eastern
+# -----------------------------------------------------
 $timezoneScriptUrl = "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Set%20timezone%20to%20Eastern/remediate-tx-is-eastern.ps1"
-
-# Download and execute the timezone script
 $timezoneScriptPath = Join-Path -Path $prepPath -ChildPath "remediate-tx-is-eastern.ps1"
 Invoke-WebRequest -Uri $timezoneScriptUrl -OutFile $timezoneScriptPath
 & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $timezoneScriptPath
 
-# Define the FSLogix extraction path
+# Major Section: Install/Update FSLogix
+# -----------------------------------------------------
 $fslogixExtractPath = Join-Path -Path $prepPath -ChildPath "fslogix"
-
-# Create the extraction directory if it doesn't exist
 if (-not (Test-Path -Path $fslogixExtractPath)) {
     New-Item -ItemType Directory -Path $fslogixExtractPath -Force | Out-Null
 }
-
-# Download the FSLogix zip file
 $fsLogixZipPath = Join-Path -Path $prepPath -ChildPath "fslogix.zip"
 Invoke-WebRequest -Uri "https://aka.ms/fslogix_download" -OutFile $fsLogixZipPath
-
-# Extract the zip file to the specified path
 Expand-Archive -LiteralPath $fsLogixZipPath -DestinationPath $fslogixExtractPath -Force
-
-# Specify the path to the FSLogixAppsSetup.exe file
-$fsLogixExePath = "C:\install\avd-prep\fslogix\x64\Release\FSLogixAppsSetup.exe"
-
-
-if (-not [string]::IsNullOrEmpty($fsLogixExePath)) {
-    # Silently execute the FSLogix installer
+$fsLogixExePath = Join-Path -Path $fslogixExtractPath -ChildPath "x64\Release\FSLogixAppsSetup.exe"
+if (Test-Path -Path $fsLogixExePath) {
     Start-Process -FilePath $fsLogixExePath -Wait -ArgumentList "/install", "/quiet", "/norestart"
     Write-Host "FSLogix has been installed/updated successfully."
 } else {
     Write-Host "FSLogixAppsSetup.exe was not found after extraction."
 }
 
-
-# Function to download and execute the redistributable installer
+# Major Section: Install Visual C++ Redistributable
+# -----------------------------------------------------
 function Install-Redistributable {
     param (
         [string]$Architecture
     )
-    
     $redistUrl = "https://aka.ms/vs/17/release/vc_redist.$Architecture.exe"
     $redistPath = Join-Path -Path $prepPath -ChildPath "vc_redist.$Architecture.exe"
-    
-    # Download the redistributable
     Invoke-WebRequest -Uri $redistUrl -OutFile $redistPath
-    
-    # Start the installer
     Start-Process -FilePath $redistPath -ArgumentList "/quiet", "/norestart" -Wait
 }
-
-# Install or update x86 redistributable
 Install-Redistributable -Architecture "x86"
-
-# Install or update x64 redistributable
 Install-Redistributable -Architecture "x64"
 
+# Major Section: Enable AVD Teams Optimization
+# -----------------------------------------------------
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Enable%20Teams%20Media%20Optimization/enable-teams-media-optimization%202024-04-01.ps1" -OutFile "$prepPath\enable-teams-media-optimization.ps1"; & powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$prepPath\enable-teams-media-optimization.ps1"
 
-# Enable AVD Teams Optimization
-New-Item -Path "HKLM:\SOFTWARE\Microsoft\Teams" -Force
-New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Teams" -Name IsWVDEnvironment -PropertyType DWORD -Value 1 -Force
-
-# Install/update WebRTC with the latest version.
-$msiPath = "$prepPath\msrdcwebrtcsvc.msi"
+# Major Section: Install/update WebRTC for AVD
+# -----------------------------------------------------
+$msiPath = Join-Path -Path $prepPath -ChildPath "msrdcwebrtcsvc.msi"
 Invoke-WebRequest -Uri "https://aka.ms/msrdcwebrtcsvc/msi" -OutFile $msiPath
 Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$msiPath`" /quiet /norestart" -Wait
 
-# Enable Hyper-V feature
-Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All -NoRestart -Verbose
+# Major Section: Enable Hyper-V Feature
+# -----------------------------------------------------
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Enable%20Nested%20Virtualization%20for%20Hibernate/deploy-hyper-v%202024-04-01.ps1" -OutFile "$prepPath\deploy-hyper-v.ps1"; & powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$prepPath\deploy-hyper-v.ps1"
 
+# Major Section: Installing Microsoft 365
+# -----------------------------------------------------
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Install%20M365/deploy-M365.ps1" -OutFile "$prepPath\deploy-M365.ps1"; & powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$prepPath\deploy-M365.ps1"
 
-# Define the URL and the local file path
-$url = "https://download.microsoft.com/download/2/7/A/27AF1BE6-DD20-4CB4-B154-EBAB8A7D4A7E/officedeploymenttool_17328-20162.exe"
-$odtFolder = Join-Path -Path $prepPath -ChildPath "ODT"
-$localFilePath = Join-Path -Path $odtFolder -ChildPath "officedeploymenttool_17328-20162.exe"
-
-# Ensure the ODT folder exists
-if (-not (Test-Path -Path $odtFolder)) {
-    New-Item -ItemType Directory -Path $odtFolder | Out-Null
-}
-
-# Download the file
-Invoke-WebRequest -Uri $url -OutFile $localFilePath
-
-# Make sure to include quotes around the path if it contains spaces
-$arguments = "/passive /quiet /norestart /extract:`"$odtFolder`""
-
-# Execute the downloaded file with specified arguments
-Start-Process -FilePath $localFilePath -ArgumentList $arguments -NoNewWindow -Wait
-
-
-
-
-# Define the URL of the XML file
-$xmlUrl = "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/install/OGE_Configuration.xml"
-
-# Define the full path where you want to save the XML file
-# Assuming $prepPath and "ODT" folder are already defined
-$xmlFilePath = Join-Path -Path $prepPath -ChildPath "ODT\OGE_Configuration.xml"
-
-# Download the XML file
-Invoke-WebRequest -Uri $xmlUrl -OutFile $xmlFilePath
-
-# Define the full path to the setup.exe file
-$setupPath = Join-Path -Path $prepPath -ChildPath "ODT\setup.exe"
-
-# Define the full path to your configuration XML file
-$xmlConfigPath = Join-Path -Path $prepPath -ChildPath "ODT\OGE_Configuration.xml"
-
-# Execute the Office Deployment Tool with the XML configuration
-Start-Process -FilePath $setupPath -ArgumentList "/configure `"$xmlConfigPath`"" -NoNewWindow -Wait
-#>
-
-# Define the URL of the PowerShell script
-$psScriptUrl = "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Deploy%20Teams%20via%20Bootstrapper/deploy-teams-bootstrapper-exe%202024-04-01.ps1"
-
-# Specify the path where the script will be saved
-# Assuming $prepPath is already defined and pointing to your working directory
+# Major Section: Deploy Teams via Bootstrapper
+# -----------------------------------------------------
 $psScriptPath = Join-Path -Path $prepPath -ChildPath "deploy-teams-bootstrapper-exe.ps1"
-
-# Download the script
-Invoke-WebRequest -Uri $psScriptUrl -OutFile $psScriptPath
-
-# Execute the downloaded script
-# NOTE: Before executing, ensure you trust the source of this script.
-# Using Invoke-Expression to execute the script
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Deploy%20Teams%20via%20Bootstrapper/deploy-teams-bootstrapper-exe%202024-04-01.ps1" -OutFile $psScriptPath
 Invoke-Expression -Command (Get-Content -Path $psScriptPath -Raw)
 
-
-$secondScriptUrl = "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Remove%20UWP%20Bloat/UWP%20Remove%20Office%20by%20User%20Context%20%2003-29-24.ps1"
-$secondScriptPath = Join-Path -Path $scriptDirectory -ChildPath "UWP_Remove_Office_by_User_Context.ps1" # Adjust $scriptDirectory as needed
-Invoke-WebRequest -Uri $secondScriptUrl -OutFile $secondScriptPath
-
-# Ensure the script is safe to run, then execute it
+# Major Section: Remove UWP Bloat - Office by User Context
+# -----------------------------------------------------
+$secondScriptPath = Join-Path -Path $prepPath -ChildPath "UWP_Remove_Office_by_User_Context.ps1"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Remove%20UWP%20Bloat/UWP%20Remove%20Office%20by%20User%20Context%20%2003-29-24.ps1" -OutFile $secondScriptPath
 Invoke-Expression -Command (Get-Content -Path $secondScriptPath -Raw)
+
+# Major Section: Initiate Task Scheduled Setting
+# -----------------------------------------------------
+# Define the URL of the PowerShell script
+$scriptUrl = "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/initiate-task-scheduler.ps1"
+
+# Specify the local path where the script will be saved
+$localScriptPath = Join-Path -Path $env:TEMP -ChildPath "initiate-task-scheduler.ps1"
+
+# Download the script
+Invoke-WebRequest -Uri $scriptUrl -OutFile $localScriptPath
+
+# Execute the downloaded script
+# Ensure you trust the script source before executing
+& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $localScriptPath
+
+# Major Section: Install WebView2 Runtime
+# -----------------------------------------------------
+# Define the URL for the EXE
+$exeUrl = "https://go.microsoft.com/fwlink/p/?LinkId=2124703"
+
+# Specify the local path for the downloaded EXE
+$localExePath = Join-Path -Path $env:TEMP -ChildPath "MicrosoftEdgeWebview2Setup.exe"
+
+# Attempt to download the EXE file
+Invoke-WebRequest -Uri $exeUrl -OutFile $localExePath
+
+# Execute the downloaded EXE file
+# NOTE: Adjust the argument list as needed for silent or specific installation options
+Start-Process -FilePath $localExePath -NoNewWindow -Wait
