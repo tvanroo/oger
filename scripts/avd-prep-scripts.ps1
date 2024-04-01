@@ -68,8 +68,10 @@ Install-Redistributable -Architecture "x64"
 New-Item -Path "HKLM:\SOFTWARE\Microsoft\Teams" -Force
 New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Teams" -Name IsWVDEnvironment -PropertyType DWORD -Value 1 -Force
 
-# Install/update WebRTC with latest version.
-Invoke-WebRequest -Uri "https://aka.ms/msrdcwebrtcsvc/msi" -OutFile "$prepPath\msrdcwebrtcsvc.msi"; Start-Process -FilePath "$prepPath\msrdcwebrtcsvc.msi" -ArgumentList "/quiet" -Wait
+# Install/update WebRTC with the latest version.
+$msiPath = "$prepPath\msrdcwebrtcsvc.msi"
+Invoke-WebRequest -Uri "https://aka.ms/msrdcwebrtcsvc/msi" -OutFile $msiPath
+Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$msiPath`" /quiet /norestart" -Wait
 
 # Enable Hyper-V feature
-Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All -Verbose
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All -NoRestart -Verbose
