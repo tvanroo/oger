@@ -98,7 +98,7 @@ $arguments = "/passive /norestart /extract:`"$extractPath`""
 
 # Execute the downloaded file with specified arguments
 Start-Process -FilePath $localFilePath -ArgumentList $arguments -NoNewWindow -Wait
-
+#>
 
 
 # Define the URL of the XML file
@@ -111,7 +111,7 @@ $xmlFilePath = Join-Path -Path $prepPath -ChildPath "ODT\OGE_Configuration.xml"
 # Download the XML file
 Invoke-WebRequest -Uri $xmlUrl -OutFile $xmlFilePath
 
-#>
+
 
 # Define the full path to the setup.exe file
 $setupPath = Join-Path -Path $prepPath -ChildPath "ODT\setup.exe"
