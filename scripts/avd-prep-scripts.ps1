@@ -62,7 +62,7 @@ Install-Redistributable -Architecture "x86"
 
 # Install or update x64 redistributable
 Install-Redistributable -Architecture "x64"
-#>
+
 
 # Enable AVD Teams Optimization
 New-Item -Path "HKLM:\SOFTWARE\Microsoft\Teams" -Force
@@ -75,3 +75,20 @@ Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$msiPath`" /quiet /nor
 
 # Enable Hyper-V feature
 Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All -NoRestart -Verbose -Confirm:$false
+#>
+
+# Define the URL and the local file path
+$url = "https://download.microsoft.com/download/2/7/A/27AF1BE6-DD20-4CB4-B154-EBAB8A7D4A7E/officedeploymenttool_17328-20162.exe"
+$odtFolder = Join-Path -Path $prepPath -ChildPath "ODT"
+$localFilePath = Join-Path -Path $odtFolder -ChildPath "officedeploymenttool_17328-20162.exe"
+
+# Ensure the ODT folder exists
+if (-not (Test-Path -Path $odtFolder)) {
+    New-Item -ItemType Directory -Path $odtFolder | Out-Null
+}
+
+# Download the file
+Invoke-WebRequest -Uri $url -OutFile $localFilePath
+
+# Execute the downloaded file silently
+Start-Process -FilePath $localFilePath -ArgumentList "/quiet" -NoNewWindow -Wait
