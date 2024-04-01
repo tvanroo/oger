@@ -77,7 +77,6 @@
     # -----------------------------------------------------
     Invoke-WebRequest -Uri "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/initiate-task-scheduler.ps1" -OutFile "$env:TEMP\initiate-task-scheduler.ps1"; & powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$env:TEMP\initiate-task-scheduler.ps1"
 
-
 # Major Section: Install WebView2 Runtime
     # -----------------------------------------------------
     Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile "$env:TEMP\MicrosoftEdgeWebview2Setup.exe"; Start-Process -FilePath "$env:TEMP\MicrosoftEdgeWebview2Setup.exe" -NoNewWindow -Wait
