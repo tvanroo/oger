@@ -3,6 +3,8 @@ $prepPath = "c:\install\avd-prep\"
 if (-not (Test-Path -Path $prepPath)) {
     New-Item -ItemType Directory -Path $prepPath -Force | Out-Null
 }
+
+<#
 # Define the URL for the timezone script
 $timezoneScriptUrl = "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Set%20timezone%20to%20Eastern/remediate-tx-is-eastern.ps1"
 
@@ -18,7 +20,6 @@ $fslogixExtractPath = Join-Path -Path $prepPath -ChildPath "fslogix"
 if (-not (Test-Path -Path $fslogixExtractPath)) {
     New-Item -ItemType Directory -Path $fslogixExtractPath -Force | Out-Null
 }
-
 
 # Download the FSLogix zip file
 $fsLogixZipPath = Join-Path -Path $prepPath -ChildPath "fslogix.zip"
@@ -73,7 +74,7 @@ Invoke-WebRequest -Uri "https://aka.ms/msrdcwebrtcsvc/msi" -OutFile $msiPath
 Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$msiPath`" /quiet /norestart" -Wait
 
 # Enable Hyper-V feature
-Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All -NoRestart -Verbose -Confirm:$false
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All -NoRestart -Verbose
 
 
 # Define the URL and the local file path
@@ -90,10 +91,12 @@ if (-not (Test-Path -Path $odtFolder)) {
 Invoke-WebRequest -Uri $url -OutFile $localFilePath
 
 # Make sure to include quotes around the path if it contains spaces
-$arguments = "/passive /norestart /extract:`"$odtFolder`""
+$arguments = "/passive /quiet /norestart /extract:`"$odtFolder`""
 
 # Execute the downloaded file with specified arguments
 Start-Process -FilePath $localFilePath -ArgumentList $arguments -NoNewWindow -Wait
+
+
 
 
 # Define the URL of the XML file
@@ -106,8 +109,6 @@ $xmlFilePath = Join-Path -Path $prepPath -ChildPath "ODT\OGE_Configuration.xml"
 # Download the XML file
 Invoke-WebRequest -Uri $xmlUrl -OutFile $xmlFilePath
 
-
-
 # Define the full path to the setup.exe file
 $setupPath = Join-Path -Path $prepPath -ChildPath "ODT\setup.exe"
 
@@ -116,3 +117,19 @@ $xmlConfigPath = Join-Path -Path $prepPath -ChildPath "ODT\OGE_Configuration.xml
 
 # Execute the Office Deployment Tool with the XML configuration
 Start-Process -FilePath $setupPath -ArgumentList "/configure `"$xmlConfigPath`"" -NoNewWindow -Wait
+#>
+
+# Define the URL of the PowerShell script
+$psScriptUrl = "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Deploy%20Teams%20via%20Bootstrapper/deploy-teams-bootstrapper-exe%202024-04-01.ps1"
+
+# Specify the path where the script will be saved
+# Assuming $prepPath is already defined and pointing to your working directory
+$psScriptPath = Join-Path -Path $prepPath -ChildPath "deploy-teams-bootstrapper-exe.ps1"
+
+# Download the script
+Invoke-WebRequest -Uri $psScriptUrl -OutFile $psScriptPath
+
+# Execute the downloaded script
+# NOTE: Before executing, ensure you trust the source of this script.
+# Using Invoke-Expression to execute the script
+Invoke-Expression -Command (Get-Content -Path $psScriptPath -Raw)
