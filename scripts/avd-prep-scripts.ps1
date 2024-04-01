@@ -39,7 +39,7 @@ if (-not [string]::IsNullOrEmpty($fsLogixExePath)) {
 } else {
     Write-Host "FSLogixAppsSetup.exe was not found after extraction."
 }
-
+#>
 
 # Function to download and execute the redistributable installer
 function Install-Redistributable {
@@ -98,7 +98,7 @@ $arguments = "/passive /norestart /extract:`"$extractPath`""
 
 # Execute the downloaded file with specified arguments
 Start-Process -FilePath $localFilePath -ArgumentList $arguments -NoNewWindow -Wait
-#>
+
 
 
 # Define the URL of the XML file
