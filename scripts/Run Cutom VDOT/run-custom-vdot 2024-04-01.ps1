@@ -1,3 +1,5 @@
+$prepPath = "c:\install\avd-prep\"
+
    # Define the URL of the ZIP file
    $zipUrl = "https://github.com/tvanroo/oger-vdot/archive/refs/heads/main.zip"
 

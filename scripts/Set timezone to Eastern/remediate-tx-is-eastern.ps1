@@ -1,3 +1,4 @@
+
 # Define the path to the TimeZoneInformation registry key
 $registryPath = "HKLM:\SYSTEM\CurrentControlSet\Control\TimeZoneInformation"
 # Define the name of the property to update
