@@ -133,3 +133,11 @@ Invoke-WebRequest -Uri $psScriptUrl -OutFile $psScriptPath
 # NOTE: Before executing, ensure you trust the source of this script.
 # Using Invoke-Expression to execute the script
 Invoke-Expression -Command (Get-Content -Path $psScriptPath -Raw)
+
+
+$secondScriptUrl = "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Remove%20UWP%20Bloat/UWP%20Remove%20Office%20by%20User%20Context%20%2003-29-24.ps1"
+$secondScriptPath = Join-Path -Path $scriptDirectory -ChildPath "UWP_Remove_Office_by_User_Context.ps1" # Adjust $scriptDirectory as needed
+Invoke-WebRequest -Uri $secondScriptUrl -OutFile $secondScriptPath
+
+# Ensure the script is safe to run, then execute it
+Invoke-Expression -Command (Get-Content -Path $secondScriptPath -Raw)
