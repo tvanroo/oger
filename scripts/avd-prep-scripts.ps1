@@ -23,26 +23,55 @@
 # Major Section: Deploy VDOT Optimizations 
     # IMPORTANT: This script references scripts and config files in a different gitHub Repository: https://github.com/tvanroo/oger-vdot 
     # -----------------------------------------------------
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Run%20Cutom%20VDOT/run-custom-vdot%202024-04-01.ps1" -OutFile "$prepPath\run-custom-vdot.ps1"; & powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$prepPath\run-custom-vdot.ps1"
+    $prepPath = "c:\install\avd-prep\"
+
+    # Define the URL of the ZIP file
+    $zipUrl = "https://github.com/tvanroo/oger-vdot/archive/refs/heads/main.zip"
+ 
+    # Define the local path for the downloaded ZIP file using the $prepPath variable
+    $zipFilePath = Join-Path -Path $prepPath -ChildPath "downloaded.zip"
+ 
+    # Download the ZIP file
+    Invoke-WebRequest -Uri $zipUrl -OutFile $zipFilePath
+ 
+    # Extract the ZIP file to $prepPath
+    Expand-Archive -LiteralPath $zipFilePath -DestinationPath $prepPath -Force
+ 
+    # Optionally, remove the ZIP file after extraction if not needed
+    Remove-Item -Path $zipFilePath
+    
+    # Construct the full path to the Windows_VDOT.ps1 script using $prepPath
+    $scriptPath = Join-Path -Path $prepPath -ChildPath "oger-vdot-main\Windows_VDOT.ps1"
+ 
+    # Execute the script with arguments
+    & $scriptPath -Optimizations AppxPackages, Autologgers, DefaultUserSettings, DiskCleanup, NetworkOptimizations, ScheduledTasks, Services -AdvancedOptimizations Edge, RemoveOneDrive -AcceptEULA
+ 
+# Major Section: Download Installer FSLogix - Install run later
+    # -----------------------------------------------------
+    # Ensure the AVD preparation directory exists
+$prepPath = "c:\install\avd-prep\"
+if (-not (Test-Path -Path $prepPath)) {
+    New-Item -ItemType Directory -Path $prepPath -Force | Out-Null
+}
+
+# Major Section: Download Installer FSLogix - Install run later
+# -----------------------------------------------------
+$fslogixExtractPath = "$prepPath\fslogix"
+if (-not (Test-Path -Path $fslogixExtractPath)) {
+    New-Item -ItemType Directory -Path $fslogixExtractPath -Force | Out-Null
+}
+
+# Start a background job for downloading and expanding the FSLogix archive
+$job = Start-Job -ScriptBlock {
+    param($prepPath, $fslogixExtractPath)
+    $fslogixZipPath = "$prepPath\fslogix.zip"
+    Invoke-WebRequest -Uri "https://aka.ms/fslogix_download" -OutFile $fslogixZipPath
+    Expand-Archive -LiteralPath $fslogixZipPath -DestinationPath $fslogixExtractPath -Force
+} -ArgumentList $prepPath, $fslogixExtractPath
 
 # Major Section: Set Timezone to Eastern
     # -----------------------------------------------------
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Set%20timezone%20to%20Eastern/remediate-tx-is-eastern.ps1" -OutFile "$prepPath\remediate-tx-is-eastern.ps1"; & powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$prepPath\remediate-tx-is-eastern.ps1"
-
-# Major Section: Download Installer FSLogix - Install run later
-    # -----------------------------------------------------
-    $fslogixExtractPath = "$prepPath\fslogix"; if (-not (Test-Path -Path $fslogixExtractPath)) { New-Item -ItemType Directory -Path $fslogixExtractPath -Force | Out-Null }
-    Invoke-WebRequest -Uri "https://aka.ms/fslogix_download" -OutFile "$prepPath\fslogix.zip"
-    Expand-Archive -LiteralPath "$prepPath\fslogix.zip" -DestinationPath $fslogixExtractPath -Force
-    
- # Major Section: Install/Update FSLogix 
-    $fsLogixExePath = "$fslogixExtractPath\x64\Release\FSLogixAppsSetup.exe"
-    if (Test-Path -Path $fsLogixExePath) {
-        Start-Process -FilePath $fsLogixExePath -Wait -ArgumentList "/install", "/quiet", "/norestart"
-        Write-Host "FSLogix has been installed/updated successfully."
-    } else {
-        Write-Host "FSLogixAppsSetup.exe was not found after extraction."
-    }
+    Set-TimeZone -Id "Eastern Standard Time"
 
 # Major Section: Install Visual C++ Redistributable
     # -----------------------------------------------------
@@ -61,8 +90,18 @@
 
 # Major Section: Enable AVD Teams Optimization
     # -----------------------------------------------------
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Enable%20Teams%20Media%20Optimization/enable-teams-media-optimization%202024-04-01.ps1" -OutFile "$prepPath\enable-teams-media-optimization.ps1"; & powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$prepPath\enable-teams-media-optimization.ps1"
-
+    $registryPath = "HKLM:\SOFTWARE\Microsoft\Teams"
+    $valueName = "IsWVDEnvironment"
+    $desiredValue = 1
+    
+    # Ensure the Teams key exists
+    New-Item -Path $registryPath -Force | Out-Null
+    
+    # Set the desired DWORD value
+    New-ItemProperty -Path $registryPath -Name $valueName -PropertyType DWORD -Value $desiredValue -Force | Out-Null
+    
+    Write-Host "IsWVDEnvironment registry setting applied successfully."
+    
 
 # Major Section: Install/update WebRTC for AVD
     # -----------------------------------------------------
@@ -73,27 +112,61 @@
 
 # Major Section: Enable Hyper-V Feature
     # -----------------------------------------------------
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Enable%20Nested%20Virtualization%20for%20Hibernate/deploy-hyper-v%202024-04-01.ps1" -OutFile "$prepPath\deploy-hyper-v.ps1"; & powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$prepPath\deploy-hyper-v.ps1"
+
+
+# Execute the function to enable Hyper-V
+    Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
 
 
 # Major Section: Installing Microsoft 365
     # -----------------------------------------------------
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Install%20M365/deploy-M365.ps1" -OutFile "$prepPath\deploy-M365.ps1"; & powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$prepPath\deploy-M365.ps1"
+    $odtFolder = Join-Path -Path $prepPath -ChildPath "ODT"
+    if (-not (Test-Path -Path $odtFolder)) {
+        New-Item -ItemType Directory -Path $odtFolder | Out-Null
+    }
+
+    # Download the ODT setup executable
+    $odtExePath = Join-Path -Path $odtFolder -ChildPath "officedeploymenttool_17328-20162.exe"
+    Invoke-WebRequest -Uri "https://download.microsoft.com/download/2/7/A/27AF1BE6-DD20-4CB4-B154-EBAB8A7D4A7E/officedeploymenttool_17328-20162.exe" -OutFile $odtExePath
+
+    # Extract the ODT contents
+    Start-Process -FilePath $odtExePath -ArgumentList "/quiet /extract:`"$odtFolder`"" -NoNewWindow -Wait
+
+    # Assuming the ODT contents, including 'setup.exe', are extracted directly into $odtFolder
+    $setupPath = Join-Path -Path $odtFolder -ChildPath "setup.exe"
+
+    # Download the XML configuration file
+    $xmlFilePath = Join-Path -Path $odtFolder -ChildPath "OGE_Configuration.xml"
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/install/OGE_Configuration.xml" -OutFile $xmlFilePath
+
+    # Use the extracted 'setup.exe' for the Office installation/configuration
+    Start-Process -FilePath $setupPath -ArgumentList "/configure `"$xmlFilePath`"" -NoNewWindow -Wait
 
 
 # Major Section: Deploy Teams via Bootstrapper
     # -----------------------------------------------------
-    $psScriptPath = Join-Path -Path $prepPath -ChildPath "deploy-teams-bootstrapper-exe.ps1"
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Deploy%20Teams%20via%20Bootstrapper/deploy-teams-bootstrapper-exe%202024-04-01.ps1" -OutFile $psScriptPath
-    Invoke-Expression -Command (Get-Content -Path $psScriptPath -Raw)
+ # Define the download URL and target directory
+    $url = "https://go.microsoft.com/fwlink/?linkid=2243204&clcid=0x409"
+    $targetDir = "c:\install\installers"
+    $fileName = "teamsbootstrapper.exe"
 
+    # Ensure the target directory exists
+    if (-not (Test-Path -Path $targetDir)) {
+        New-Item -ItemType Directory -Path $targetDir -Force
+    }
 
-# Major Section: Remove UWP Bloat - Office by User Context
-    # -----------------------------------------------------
-    $secondScriptPath = Join-Path -Path $prepPath -ChildPath "UWP_Remove_Office_by_User_Context.ps1"
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Remove%20UWP%20Bloat/UWP%20Remove%20Office%20by%20User%20Context%20%2003-29-24.ps1" -OutFile $secondScriptPath
-    Invoke-Expression -Command (Get-Content -Path $secondScriptPath -Raw)
+    # Construct the full file path
+    $filePath = Join-Path -Path $targetDir -ChildPath $fileName
 
+    # Download the file
+    Invoke-WebRequest -Uri $url -OutFile $filePath
+
+    Write-Host "Download completed: $filePath"
+
+    # Execute the downloaded file with the '-p' parameter, suppressing the command prompt window
+    Start-Process -FilePath $filePath -ArgumentList "-p" -WindowStyle Hidden -Wait
+
+    Write-Host "Execution completed."
 
 # Major Section: Initiate Task Scheduled Setting
     # -----------------------------------------------------
@@ -103,11 +176,19 @@
     # -----------------------------------------------------
     Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile "$env:TEMP\MicrosoftEdgeWebview2Setup.exe"; Start-Process -FilePath "$env:TEMP\MicrosoftEdgeWebview2Setup.exe" -NoNewWindow -Wait
 
- # Major Section: Install/Update FSLogix 
- $fsLogixExePath = "$fslogixExtractPath\x64\Release\FSLogixAppsSetup.exe"
- if (Test-Path -Path $fsLogixExePath) {
-     Start-Process -FilePath $fsLogixExePath -Wait -ArgumentList "/install", "/quiet", "/norestart"
-     Write-Host "FSLogix has been installed/updated successfully."
- } else {
-     Write-Host "FSLogixAppsSetup.exe was not found after extraction."
- }
+# Major Section: Install/Update FSLogix 
+     # -----------------------------------------------------
+    # Assuming the background job for downloading and extracting FSLogix has been started earlier in your script as described
+    # Wait for the background job to complete before starting FSLogix installation
+    Wait-Job -Job $job
+    Receive-Job -Job $job
+    Remove-Job -Job $job
+
+    # Major Section: Install/Update FSLogix 
+    $fsLogixExePath = "$fslogixExtractPath\x64\Release\FSLogixAppsSetup.exe"
+    if (Test-Path -Path $fsLogixExePath) {
+        Start-Process -FilePath $fsLogixExePath -Wait -ArgumentList "/install", "/quiet", "/norestart"
+        Write-Host "FSLogix has been installed/updated successfully."
+    } else {
+        Write-Host "FSLogixAppsSetup.exe was not found after extraction."
+    }
