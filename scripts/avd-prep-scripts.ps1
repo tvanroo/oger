@@ -3,7 +3,7 @@ $prepPath = "c:\install\avd-prep\"
 if (-not (Test-Path -Path $prepPath)) {
     New-Item -ItemType Directory -Path $prepPath -Force | Out-Null
 }
-
+<# Removed for testing
 # Define the URL for the timezone script
 $timezoneScriptUrl = "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Set%20timezone%20to%20Eastern/remediate-tx-is-eastern.ps1"
 
@@ -19,7 +19,7 @@ $fslogixExtractPath = Join-Path -Path $prepPath -ChildPath "fslogix"
 if (-not (Test-Path -Path $fslogixExtractPath)) {
     New-Item -ItemType Directory -Path $fslogixExtractPath -Force | Out-Null
 }
-<# Removed for testing
+
 
 # Download the FSLogix zip file
 $fsLogixZipPath = Join-Path -Path $prepPath -ChildPath "fslogix.zip"
@@ -91,4 +91,4 @@ if (-not (Test-Path -Path $odtFolder)) {
 Invoke-WebRequest -Uri $url -OutFile $localFilePath
 
 # Execute the downloaded file silently
-Start-Process -FilePath $localFilePath -ArgumentList "/quiet" -NoNewWindow -Wait
+Start-Process -FilePath $localFilePath -ArgumentList "/quiet /extract:$odtFolder" -NoNewWindow -Wait
