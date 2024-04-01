@@ -1,3 +1,18 @@
+<# Tasks Executed:
+    Set Timezone to Eastern
+    Install/Update FSLogix
+    Install Visual C++ Redistributable
+    Enable AVD Teams Optimization
+    Install/update WebRTC for AVD
+    Enable Hyper-V Feature
+    Installing Microsoft 365    
+    Deploy Teams via Bootstrapper
+    Remove UWP Bloat - Office by User Context
+    Initiate Task Scheduled Setting
+    Install WebView2 Runtime
+    
+    #>
+
 # Major Section: Ensure the AVD preparation directory exists
     # -----------------------------------------------------
     $prepPath = "c:\install\avd-prep\"
