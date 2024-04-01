@@ -20,15 +20,41 @@
         New-Item -ItemType Directory -Path $prepPath -Force | Out-Null
     }
 
+# Major Section: Deploy VDOT Optimizations
+    # -----------------------------------------------------
+    # Define the URL of the ZIP file
+    $zipUrl = "https://github.com/tvanroo/oger-vdot/archive/refs/heads/main.zip"
+
+    # Define the local path for the downloaded ZIP file using the $prepPath variable
+    $zipFilePath = Join-Path -Path $prepPath -ChildPath "downloaded.zip"
+
+    # Download the ZIP file
+    Invoke-WebRequest -Uri $zipUrl -OutFile $zipFilePath
+
+    # Extract the ZIP file to $prepPath
+    Expand-Archive -LiteralPath $zipFilePath -DestinationPath $prepPath -Force
+
+    # Optionally, remove the ZIP file after extraction if not needed
+    Remove-Item -Path $zipFilePath
+    
+    # Construct the full path to the Windows_VDOT.ps1 script using $prepPath
+    $scriptPath = Join-Path -Path $prepPath -ChildPath "oger-vdot-main\Windows_VDOT.ps1"
+
+    # Execute the script with arguments
+    & $scriptPath -Optimizations AppxPackages, Autologgers, DefaultUserSettings, DiskCleanup, NetworkOptimizations, ScheduledTasks, Services -AdvancedOptimizations Edge, RemoveOneDrive -AcceptEULA
+
+
 # Major Section: Set Timezone to Eastern
     # -----------------------------------------------------
     Invoke-WebRequest -Uri "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Set%20timezone%20to%20Eastern/remediate-tx-is-eastern.ps1" -OutFile "$prepPath\remediate-tx-is-eastern.ps1"; & powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$prepPath\remediate-tx-is-eastern.ps1"
 
-# Major Section: Install/Update FSLogix
+# Major Section: Download Installer FSLogix - Install run later
     # -----------------------------------------------------
     $fslogixExtractPath = "$prepPath\fslogix"; if (-not (Test-Path -Path $fslogixExtractPath)) { New-Item -ItemType Directory -Path $fslogixExtractPath -Force | Out-Null }
     Invoke-WebRequest -Uri "https://aka.ms/fslogix_download" -OutFile "$prepPath\fslogix.zip"
     Expand-Archive -LiteralPath "$prepPath\fslogix.zip" -DestinationPath $fslogixExtractPath -Force
+    
+ # Major Section: Install/Update FSLogix 
     $fsLogixExePath = "$fslogixExtractPath\x64\Release\FSLogixAppsSetup.exe"
     if (Test-Path -Path $fsLogixExePath) {
         Start-Process -FilePath $fsLogixExePath -Wait -ArgumentList "/install", "/quiet", "/norestart"
@@ -95,3 +121,12 @@
 # Major Section: Install WebView2 Runtime
     # -----------------------------------------------------
     Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile "$env:TEMP\MicrosoftEdgeWebview2Setup.exe"; Start-Process -FilePath "$env:TEMP\MicrosoftEdgeWebview2Setup.exe" -NoNewWindow -Wait
+
+ # Major Section: Install/Update FSLogix 
+ $fsLogixExePath = "$fslogixExtractPath\x64\Release\FSLogixAppsSetup.exe"
+ if (Test-Path -Path $fsLogixExePath) {
+     Start-Process -FilePath $fsLogixExePath -Wait -ArgumentList "/install", "/quiet", "/norestart"
+     Write-Host "FSLogix has been installed/updated successfully."
+ } else {
+     Write-Host "FSLogixAppsSetup.exe was not found after extraction."
+ }
