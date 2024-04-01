@@ -75,7 +75,7 @@ Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$msiPath`" /quiet /nor
 
 # Enable Hyper-V feature
 Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All -NoRestart -Verbose -Confirm:$false
-#>
+
 
 # Define the URL and the local file path
 $url = "https://download.microsoft.com/download/2/7/A/27AF1BE6-DD20-4CB4-B154-EBAB8A7D4A7E/officedeploymenttool_17328-20162.exe"
@@ -98,3 +98,15 @@ $arguments = "/passive /norestart /extract:`"$extractPath`""
 
 # Execute the downloaded file with specified arguments
 Start-Process -FilePath $localFilePath -ArgumentList $arguments -NoNewWindow -Wait
+
+#>
+
+# Define the URL of the XML file
+$xmlUrl = "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/install/OGE_Configuration.xml"
+
+# Define the full path where you want to save the XML file
+# Assuming $prepPath and "ODT" folder are already defined
+$xmlFilePath = Join-Path -Path $prepPath -ChildPath "ODT\OGE_Configuration.xml"
+
+# Download the XML file
+Invoke-WebRequest -Uri $xmlUrl -OutFile $xmlFilePath
