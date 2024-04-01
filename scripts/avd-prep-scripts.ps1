@@ -3,7 +3,6 @@ $prepPath = "c:\install\avd-prep\"
 if (-not (Test-Path -Path $prepPath)) {
     New-Item -ItemType Directory -Path $prepPath -Force | Out-Null
 }
-<# Removed for testing
 # Define the URL for the timezone script
 $timezoneScriptUrl = "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Set%20timezone%20to%20Eastern/remediate-tx-is-eastern.ps1"
 
@@ -39,7 +38,7 @@ if (-not [string]::IsNullOrEmpty($fsLogixExePath)) {
 } else {
     Write-Host "FSLogixAppsSetup.exe was not found after extraction."
 }
-#>
+
 
 # Function to download and execute the redistributable installer
 function Install-Redistributable {
@@ -90,15 +89,11 @@ if (-not (Test-Path -Path $odtFolder)) {
 # Download the file
 Invoke-WebRequest -Uri $url -OutFile $localFilePath
 
-# Ensure to adjust the path according to your $prepPath value and folder structure
-$extractPath = Join-Path -Path $prepPath -ChildPath "ODT"
-
 # Make sure to include quotes around the path if it contains spaces
-$arguments = "/passive /norestart /extract:`"$extractPath`""
+$arguments = "/passive /norestart /extract:`"$odtFolder`""
 
 # Execute the downloaded file with specified arguments
 Start-Process -FilePath $localFilePath -ArgumentList $arguments -NoNewWindow -Wait
-
 
 
 # Define the URL of the XML file
