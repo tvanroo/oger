@@ -1,3 +1,5 @@
+# Version 1.0 from04/01/2024
+
 <# Tasks Executed:
     Set Timezone to Eastern
     Install/Update FSLogix
@@ -10,7 +12,7 @@
     Remove UWP Bloat - Office by User Context
     Initiate Task Scheduled Setting
     Install WebView2 Runtime
-    
+    Customized VDOT
     #>
 
 # Major Section: Ensure the AVD preparation directory exists
