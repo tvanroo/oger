@@ -165,10 +165,11 @@ $job = Start-Job -ScriptBlock {
     Start-Process -FilePath $filePath -ArgumentList "-p" -WindowStyle Hidden -Wait
 
     Write-Host "Execution completed."
-
+<# Disabled on with the hope that the Old Teams and Office UWP are handled by vdot. 
 # Major Section: Initiate Task Scheduled Setting
     # -----------------------------------------------------
     Invoke-WebRequest -Uri "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/initiate-task-scheduler.ps1" -OutFile "$env:TEMP\initiate-task-scheduler.ps1"; & powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$env:TEMP\initiate-task-scheduler.ps1"
+#>
 
 # Major Section: Install WebView2 Runtime
     # -----------------------------------------------------
