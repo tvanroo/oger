@@ -53,7 +53,8 @@ $appNamePatternsCurrentUser = @(
     "Microsoft.MixedReality.Portal",
     "MicrosoftTeams",
     "Microsoft.OneDriveSync",
-    "Microsoft.Wallet"
+    "Microsoft.Wallet",
+    "Microsoft.Windows.Ai.Copilot.Provider"
 )
 
 $currentUserPackages = Get-AppxPackage
