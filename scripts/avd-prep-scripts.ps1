@@ -1,18 +1,19 @@
 # Version 1.0 from04/01/2024
 
 <# Tasks Executed:
-    Set Timezone to Eastern
-    Install/Update FSLogix
-    Install Visual C++ Redistributable
-    Enable AVD Teams Optimization
-    Install/update WebRTC for AVD
-    Enable Hyper-V Feature
-    Installing Microsoft 365    
-    Deploy Teams via Bootstrapper
-    Remove UWP Bloat - Office by User Context
-    Initiate Task Scheduled Setting
-    Install WebView2 Runtime
-    Customized VDOT
+# Major Section: Ensure the AVD preparation directory exists
+# Major Section: Deploy VDOT Optimizations 
+# Major Section: Download Installer FSLogix - Install run later
+# Major Section: Set Timezone to Eastern
+# Major Section: Enable AVD Teams Optimization
+# Major Section: Install/update WebRTC for AVD
+# Major Section: Execute the function to enable Hyper-V
+# Major Section: Installing Microsoft 365
+# Major Section: Deploy Teams via Bootstrapper
+# Major Section: Initiate Task Scheduled Setting (Currently Disabled)
+# Major Section: Install WebView2 Runtime
+# Major Section: Install/Update FSLogix 
+
     #>
 
 # Major Section: Ensure the AVD preparation directory exists
@@ -51,25 +52,23 @@
 # Major Section: Download Installer FSLogix - Install run later
     # -----------------------------------------------------
     # Ensure the AVD preparation directory exists
-$prepPath = "c:\install\avd-prep\"
-if (-not (Test-Path -Path $prepPath)) {
-    New-Item -ItemType Directory -Path $prepPath -Force | Out-Null
-}
+    $prepPath = "c:\install\avd-prep\"
+    if (-not (Test-Path -Path $prepPath)) {
+        New-Item -ItemType Directory -Path $prepPath -Force | Out-Null
+    }
 
-# Major Section: Download Installer FSLogix - Install run later
-# -----------------------------------------------------
-$fslogixExtractPath = "$prepPath\fslogix"
-if (-not (Test-Path -Path $fslogixExtractPath)) {
-    New-Item -ItemType Directory -Path $fslogixExtractPath -Force | Out-Null
-}
+    $fslogixExtractPath = "$prepPath\fslogix"
+    if (-not (Test-Path -Path $fslogixExtractPath)) {
+        New-Item -ItemType Directory -Path $fslogixExtractPath -Force | Out-Null
+    }
 
-# Start a background job for downloading and expanding the FSLogix archive
-$job = Start-Job -ScriptBlock {
-    param($prepPath, $fslogixExtractPath)
-    $fslogixZipPath = "$prepPath\fslogix.zip"
-    Invoke-WebRequest -Uri "https://aka.ms/fslogix_download" -OutFile $fslogixZipPath
-    Expand-Archive -LiteralPath $fslogixZipPath -DestinationPath $fslogixExtractPath -Force
-} -ArgumentList $prepPath, $fslogixExtractPath
+    # Start a background job for downloading and expanding the FSLogix archive
+    $job = Start-Job -ScriptBlock {
+        param($prepPath, $fslogixExtractPath)
+        $fslogixZipPath = "$prepPath\fslogix.zip"
+        Invoke-WebRequest -Uri "https://aka.ms/fslogix_download" -OutFile $fslogixZipPath
+        Expand-Archive -LiteralPath $fslogixZipPath -DestinationPath $fslogixExtractPath -Force
+    } -ArgumentList $prepPath, $fslogixExtractPath
 
 # Major Section: Set Timezone to Eastern
     # -----------------------------------------------------
@@ -112,7 +111,7 @@ $job = Start-Job -ScriptBlock {
     Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$msiPath`" /quiet /norestart" -Wait
 
 
-# Execute the function to enable Hyper-V
+# Major Section: Execute the function to enable Hyper-V
     Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All -NoRestart
 
 
