@@ -23,7 +23,37 @@ Write-Host "Starting removal script at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss z
 $appNamePatternsCurrentUser = @(
     "Microsoft.OutlookForWindows",
     "Microsoft.MicrosoftOfficeHub",
-    "microsoft.windowscommunicationsapps"
+    "microsoft.windowscommunicationsapps",
+    "Clipchamp.Clipchamp",
+    "Microsoft.549981C3F5F10",
+    "Microsoft.BingNews",
+    "Microsoft.BingWeather",
+    "Microsoft.GamingApp",
+    "Microsoft.Getstarted",
+    "Microsoft.Office.OneNote",
+    "Microsoft.MicrosoftSolitaireCollection",
+    "Microsoft.MSPaint",
+    "Microsoft.People",
+    "Microsoft.PowerAutomateDesktop",
+    "Microsoft.SkypeApp",
+    "Microsoft.Todos",
+    "Microsoft.Windows.DevHome",
+    "Microsoft.Windows.Photos",
+    "Microsoft.WindowsFeedbackHub",
+    "Microsoft.WindowsMaps",
+    "Microsoft.Xbox.TCUI",
+    "Microsoft.XboxGameOverlay",
+    "Microsoft.XboxGamingOverlay",
+    "Microsoft.XboxIdentityProvider",
+    "Microsoft.XboxSpeechToTextOverlay",
+    "Microsoft.YourPhone",
+    "Microsoft.ZuneMusic",
+    "Microsoft.ZuneVideo",
+    "Microsoft.XboxApp",
+    "Microsoft.MixedReality.Portal",
+    "MicrosoftTeams",
+    "Microsoft.OneDriveSync",
+    "Microsoft.Wallet"
 )
 
 $currentUserPackages = Get-AppxPackage
