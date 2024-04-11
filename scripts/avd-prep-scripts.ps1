@@ -13,7 +13,8 @@
 # Major Section: Initiate Task Scheduled Setting (Currently Disabled)
 # Major Section: Install WebView2 Runtime
 # Major Section: Install/Update FSLogix 
- # Major Section: Taskbar Optimization  
+# Major Section: Taskbar Optimization  
+# Major Section: Enforce TLS 1.2and higher
 
     #>
 
@@ -241,6 +242,35 @@
             Start-Process -FilePath "CMD.EXE" -ArgumentList "/C REG.EXE UNLOAD HKU\$($UserProfile.SID)" -Wait -WindowStyle Hidden
         }
     }
+
+# Major Section: Enforce TLS 1.2and higher 
+    # Registry paths and values to be updated
+    $registryPaths = @(
+        "HKLM:\SOFTWARE\WOW6432Node\Microsoft\.NETFramework\v2.0.50727",
+        "HKLM:\SOFTWARE\WOW6432Node\Microsoft\.NETFramework\v4.0.30319",
+        "HKLM:\SOFTWARE\Microsoft\.NETFramework\v2.0.50727",
+        "HKLM:\SOFTWARE\Microsoft\.NETFramework\v4.0.30319"
+    )
+
+    $registryValues = @{
+        "SystemDefaultTlsVersions" = 1
+        "SchUseStrongCrypto" = 1
+    }
+
+    # Iterate over each path and update the specified values
+    foreach ($path in $registryPaths) {
+        foreach ($name in $registryValues.Keys) {
+            if (Test-Path $path) {
+                Set-ItemProperty -Path $path -Name $name -Value $registryValues[$name]
+                Write-Host "Updated $name at $path"
+            } else {
+                Write-Host "Path $path does not exist, skipping..."
+            }
+        }
+    }
+
+Write-Host "Registry update complete."
+
 
     # Stop logging
     Stop-Transcript
