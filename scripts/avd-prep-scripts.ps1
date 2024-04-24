@@ -14,7 +14,7 @@
 # Major Section: Install WebView2 Runtime
 # Major Section: Install/Update FSLogix 
 # Major Section: Taskbar Optimization  
-# Major Section: Enforce TLS 1.2and higher
+# Major Section: Enforce TLS 1.2 and higher
 
     #>
 
@@ -244,20 +244,40 @@
     }
 
 # Major Section: Enforce TLS 1.2and higher 
-    # Registry paths and values to be updated
+    # TLS 1.0 Server and Client Configuration
+    $tls10Paths = @(
+        'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Server',
+        'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Client'
+    )
+    foreach ($path in $tls10Paths) {
+        New-Item $path -Force | Out-Null
+        New-ItemProperty -Path $path -Name 'Enabled' -Value 0 -PropertyType 'DWORD' -Force
+        New-ItemProperty -Path $path -Name 'DisabledByDefault' -Value 1 -PropertyType 'DWORD' -Force
+    }
+
+    # TLS 1.1 Server and Client Configuration
+    $tls11Paths = @(
+        'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Server',
+        'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Client'
+    )
+    foreach ($path in $tls11Paths) {
+        New-Item $path -Force | Out-Null
+        New-ItemProperty -Path $path -Name 'Enabled' -Value 0 -PropertyType 'DWORD' -Force
+        New-ItemProperty -Path $path -Name 'DisabledByDefault' -Value 1 -PropertyType 'DWORD' -Force
+    }
+
+    # Update .NET Framework settings to use system defaults and strong crypto
     $registryPaths = @(
         "HKLM:\SOFTWARE\WOW6432Node\Microsoft\.NETFramework\v2.0.50727",
         "HKLM:\SOFTWARE\WOW6432Node\Microsoft\.NETFramework\v4.0.30319",
         "HKLM:\SOFTWARE\Microsoft\.NETFramework\v2.0.50727",
         "HKLM:\SOFTWARE\Microsoft\.NETFramework\v4.0.30319"
     )
-
     $registryValues = @{
         "SystemDefaultTlsVersions" = 1
         "SchUseStrongCrypto" = 1
     }
 
-    # Iterate over each path and update the specified values
     foreach ($path in $registryPaths) {
         foreach ($name in $registryValues.Keys) {
             if (Test-Path $path) {
@@ -269,7 +289,8 @@
         }
     }
 
-Write-Host "Registry update complete."
+    Write-Host "TLS configuration and .NET Framework updates are complete."
+
 
 
     # Stop logging
