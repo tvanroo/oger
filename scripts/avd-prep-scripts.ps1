@@ -49,7 +49,7 @@
     $scriptPath = Join-Path -Path $prepPath -ChildPath "oger-vdot-main\Windows_VDOT.ps1"
  
     # Execute the script with arguments
-    & $scriptPath -Optimizations AppxPackages, Autologgers, DefaultUserSettings, DiskCleanup, NetworkOptimizations, ScheduledTasks, Services -AdvancedOptimizations Edge, RemoveOneDrive -AcceptEULA
+    & $scriptPath -Optimizations AppxPackages, Autologgers, DefaultUserSettings, DiskCleanup, NetworkOptimizations, ScheduledTasks, Services -AdvancedOptimizations Edge -AcceptEULA
  
 # Major Section: Download Installer FSLogix - Install run later
     # -----------------------------------------------------
