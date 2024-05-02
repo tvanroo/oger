@@ -1,3 +1,4 @@
+#iex (irm https://raw.githubusercontent.com/tvanroo/oger/main/scripts/initiate-task-scheduler.ps1)
 function Download-GitHubDirectory {
     param (
         [string]$RepoOwner,
