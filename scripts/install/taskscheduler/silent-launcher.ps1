@@ -36,11 +36,11 @@ DownloadScript -url $scriptUrl1 -path $localPath1
 DownloadScript -url $scriptUrl2 -path $localPath2
 
 # Launch the scripts hidden
-$scriptBlock1 = { Start-Process "powershell.exe" -ArgumentList "-WindowStyle Hidden -ExecutionPolicy Bypass -File `"$args[0]`"" -Wait }
-$scriptBlock2 = { Start-Process "powershell.exe" -ArgumentList "-WindowStyle Hidden -ExecutionPolicy Bypass -File `"$args[0]`"" -Wait }
+$scriptBlock1 = { Start-Process "powershell.exe" -ArgumentList "-WindowStyle Hidden -ExecutionPolicy Bypass -File `"C:\install\taskscheduler\remove-old-teams-7days $(Get-Date -Format 'MM-dd-yy').ps1`"" -Wait }
+$scriptBlock2 = { Start-Process "powershell.exe" -ArgumentList "-WindowStyle Hidden -ExecutionPolicy Bypass -File `"C:\install\taskscheduler\remove-uwp-office-7days $(Get-Date -Format 'MM-dd-yy').ps1`"" -Wait }
 
-Start-Job -ScriptBlock $scriptBlock1 -ArgumentList $localPath1
-Start-Job -ScriptBlock $scriptBlock2 -ArgumentList $localPath2
+Start-Job -ScriptBlock $scriptBlock1
+Start-Job -ScriptBlock $scriptBlock2
 
 # Wait for all jobs to complete
 Get-Job | Wait-Job
