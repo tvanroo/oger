@@ -16,11 +16,11 @@ if (-not (Test-Path -Path $logDir)) {
 
 $flagFile = Join-Path -Path $logDir -ChildPath $flagFileName
 
-# Check if the script has run in the past 7 days for the current user
+# Check if the script has run in the past 1 days for the current user
 if (Test-Path -Path $flagFile) {
     $lastRun = (Get-Item -Path $flagFile).LastWriteTime
-    if ((Get-Date) - $lastRun -lt [TimeSpan]::FromDays(7)) {
-        Write-Host "Script has already run within the past 7 days for user $username. Exiting."
+    if ((Get-Date) - $lastRun -lt [TimeSpan]::FromDays(1)) {
+        Write-Host "Script has already run within the past 1 days for user $username. Exiting."
         exit
     }
 }
@@ -30,7 +30,7 @@ Start-Transcript -Path $logFile
 
 # Cleanup old logs specific to this script for the current user
 Get-ChildItem -Path $logDir -Filter "Remove-Old-Teams-LastRun-$username*.txt" | Where-Object {
-    ($_.LastWriteTime -lt (Get-Date).AddDays(-7))
+    ($_.LastWriteTime -lt (Get-Date).AddDays(-1))
 } | Remove-Item
 
 # Attempt to uninstall Teams using Update.exe if Teams is installed

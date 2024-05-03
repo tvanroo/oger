@@ -1,11 +1,11 @@
 # Correct URLs for raw content from GitHub
-$scriptUrl1 = "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/task-scheduler/remove-old-teams-7days%2003-29-24.ps1"
-$scriptUrl2 = "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/task-scheduler/remove-uwp-office-7days%2003-29-24.ps1"
+$scriptUrl1 = "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/task-scheduler/remove-old-teams-1days%2005-03-24.ps1"
+$scriptUrl2 = "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/task-scheduler/remove-uwp-office-1days%2005-03-24.ps1"
 
 # Define local paths for the scripts with dynamic date naming
 $dateSuffix = (Get-Date).ToString("MM-dd-yy")
-$localPath1 = "C:\install\taskscheduler\remove-old-teams-7days $dateSuffix.ps1"
-$localPath2 = "C:\install\taskscheduler\remove-uwp-office-7days $dateSuffix.ps1"
+$localPath1 = "C:\install\taskscheduler\remove-old-teams-1days $dateSuffix.ps1"
+$localPath2 = "C:\install\taskscheduler\remove-uwp-office-1days $dateSuffix.ps1"
 
 # Ensure the install directory exists
 $installDir = "C:\install\taskscheduler"
@@ -36,8 +36,8 @@ DownloadScript -url $scriptUrl1 -path $localPath1
 DownloadScript -url $scriptUrl2 -path $localPath2
 
 # Launch the scripts hidden
-$scriptBlock1 = { Start-Process "powershell.exe" -ArgumentList "-WindowStyle Hidden -ExecutionPolicy Bypass -File `"C:\install\taskscheduler\remove-old-teams-7days $(Get-Date -Format 'MM-dd-yy').ps1`"" -Wait }
-$scriptBlock2 = { Start-Process "powershell.exe" -ArgumentList "-WindowStyle Hidden -ExecutionPolicy Bypass -File `"C:\install\taskscheduler\remove-uwp-office-7days $(Get-Date -Format 'MM-dd-yy').ps1`"" -Wait }
+$scriptBlock1 = { Start-Process "powershell.exe" -ArgumentList "-WindowStyle Hidden -ExecutionPolicy Bypass -File `"C:\install\taskscheduler\remove-old-teams-1days $(Get-Date -Format 'MM-dd-yy').ps1`"" -Wait }
+$scriptBlock2 = { Start-Process "powershell.exe" -ArgumentList "-WindowStyle Hidden -ExecutionPolicy Bypass -File `"C:\install\taskscheduler\remove-uwp-office-1days $(Get-Date -Format 'MM-dd-yy').ps1`"" -Wait }
 
 Start-Job -ScriptBlock $scriptBlock1
 Start-Job -ScriptBlock $scriptBlock2
