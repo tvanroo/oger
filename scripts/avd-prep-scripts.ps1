@@ -249,8 +249,6 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
 
 # Major Section: Deploy VDOT Optimizations 
     # IMPORTANT: This script references scripts and config files in a different gitHub Repository: https://github.com/tvanroo/oger-vdot 
-    # -----------------------------------------------------
-    $prepPath = "c:\install\avd-prep\"
 
     # Define the URL of the ZIP file
     $zipUrl = "https://github.com/tvanroo/oger-vdot/archive/refs/heads/main.zip"
@@ -275,12 +273,6 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
  
 # Major Section: Download Installer FSLogix - Install run later
     # -----------------------------------------------------
-    # Ensure the AVD preparation directory exists
-    $prepPath = "c:\install\avd-prep\"
-    if (-not (Test-Path -Path $prepPath)) {
-        New-Item -ItemType Directory -Path $prepPath -Force | Out-Null
-    }
-
     $fslogixExtractPath = "$prepPath\fslogix"
     if (-not (Test-Path -Path $fslogixExtractPath)) {
         New-Item -ItemType Directory -Path $fslogixExtractPath -Force | Out-Null
