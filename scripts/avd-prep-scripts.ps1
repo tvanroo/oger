@@ -1,38 +1,51 @@
-# Version 1.0 from04/01/2024
+# Tasks Executed:
+#    Disable Storage Sense                                      #
+#    Timezone redirection                                       #
+#    Access to Azure File shares for FSLogix profiles           #
+#    RDP Shortpath                                              #
+#    Disable MSIX auto updates                                  #
+#    Deploy VDOT Optimizations                                  #
+#    Download Installer FSLogix - Install run later             #
+#    Set Timezone to Eastern                                    #
+#    Install Visual C++ Redistributable                         #
+#    Enable AVD Teams Optimization                              #
+#    Install/update WebRTC for AVD                              #
+#    Execute the function to enable Hyper-V                     #
+#    Installing Microsoft 365                                   #
+#    Deploy Teams via Bootstrapper                              # 
+#    Install WebView2 Runtime                                   #
+#    Install/Update FSLogix                                     #
+#    Taskbar Optimization                                       #
+#    Enforce TLS 1.2and higher                                  #
+#    Stop Windows from installing new Appx automatically        #
 
-<# Tasks Executed:
-# Major Section: Ensure the AVD preparation directory exists
-# Disable Storage Sense
-# Major Section: Deploy VDOT Optimizations 
-# Major Section: Download Installer FSLogix - Install run later
-# Major Section: Set Timezone to Eastern
-# Major Section: Enable AVD Teams Optimization
-# Major Section: Install/update WebRTC for AVD
-# Major Section: Execute the function to enable Hyper-V
-# Major Section: Installing Microsoft 365
-# Major Section: Deploy Teams via Bootstrapper
-# Major Section: Initiate Task Scheduled Setting (Currently Disabled)
-# Major Section: Install WebView2 Runtime
-# Major Section: Install/Update FSLogix 
-# Major Section: Taskbar Optimization  
-# Major Section: Enforce TLS 1.2 and higher
-
-    #>
-
-# Major Section: Ensure the AVD preparation directory exists
+#################################################################
+#region    Ensure the AVD preparation directory exists          #
+#################################################################
     # -----------------------------------------------------
     $prepPath = "c:\install\avd-prep\"
     if (-not (Test-Path -Path $prepPath)) {
         New-Item -ItemType Directory -Path $prepPath -Force | Out-Null
     }
+#################################################################
+#endregion                                                     ##
+#################################################################
 
-
-#######################################
-#    Disable Storage Sense            #
-#######################################
-
+#################################################################
+#region    Disable Storage Sense                                #
+#################################################################
 $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 Write-Host "***Starting AVD AIB CUSTOMIZER PHASE: Disable Storage Sense Start -  $((Get-Date).ToUniversalTime()) "
+
+function Set-RegKey($registryPath, $registryKey, $registryValue) {
+    try {
+        Write-Host "*** AVD AIB CUSTOMIZER PHASE ***  Disable Storage Sense - Setting  $registryKey with value $registryValue ***"
+        New-ItemProperty -Path $registryPath -Name $registryKey -Value $registryValue -PropertyType DWORD -Force -ErrorAction Stop
+    }
+    catch {
+        Write-Host "*** AVD AIB CUSTOMIZER PHASE ***   Disable Storage Sense  - Cannot add the registry key  $registryKey *** : [$($_.Exception.Message)]"
+    }
+}
 
 $registryPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\StorageSense"
 $registryKey = "AllowStorageSenseGlobal"
@@ -56,24 +69,14 @@ $elapsedTime = $stopwatch.Elapsed
 Write-Host "*** AVD AIB CUSTOMIZER PHASE: Disable Storage Sense - Exit Code: $LASTEXITCODE ***"
 Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable Storage Sense - Time taken: $elapsedTime "
 
-function Set-RegKey($registryPath, $registryKey, $registryValue) {
-    try {
-         Write-Host "*** AVD AIB CUSTOMIZER PHASE ***  Disable Storage Sense - Setting  $registryKey with value $registryValue ***"
-         New-ItemProperty -Path $registryPath -Name $registryKey -Value $registryValue -PropertyType DWORD -Force -ErrorAction Stop
-    }
-    catch {
-         Write-Host "*** AVD AIB CUSTOMIZER PHASE ***   Disable Storage Sense  - Cannot add the registry key  $registryKey *** : [$($_.Exception.Message)]"
-    }
- }
 
-#############
-#    END    #
-#############
+#################################################################
+#endregion                                                     ##
+#################################################################
 
-#######################################
-#    Timezone redirection             #
-#######################################
-
+#################################################################
+#region    Timezone redirection                                 #
+#################################################################
 $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 Write-Host "*** AVD AIB CUSTOMIZER PHASE: Timezone redirection ***"
 
@@ -98,14 +101,13 @@ $elapsedTime = $stopwatch.Elapsed
 Write-Host "*** AVD AIB CUSTOMIZER PHASE: Timezone redirection -  Exit Code: $LASTEXITCODE ***"
 Write-Host "*** AVD AIB CUSTOMIZER PHASE: Timezone redirection - Time taken: $elapsedTime ***"
 
-#############
-#    END    #
-#############
-
 #################################################################
-#    Access to Azure File shares for FSLogix profiles           #
+#endregion                                                     ##
 #################################################################
 
+#################################################################
+#region    Access to Azure File shares for FSLogix profiles     #
+#################################################################
 $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 Write-Host "*** Starting AVD AIB CUSTOMIZER PHASE: Access to Azure File shares for FSLogix profiles  ***"
 
@@ -127,7 +129,6 @@ catch {
     Write-Host "*** AVD AIB CUSTOMIZER PHASE ***  Enable Azure AD Kerberos - Cannot add the registry key $registryKey *** : [$($_.Exception.Message)]"
     Write-Host "Message: [$($_.Exception.Message)"]
 }
-
 
 # Create new reg key "LoadCredKey"
  
@@ -155,15 +156,13 @@ Write-Host "*** AVD AIB CUSTOMIZER PHASE : Access to Azure File shares for FSLog
 Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Access to Azure File shares for FSLogix profiles - Time taken: $elapsedTime "
 
 
-#############
-#    END    #
-#############
+#################################################################
+#endregion                                                     ##
+#################################################################
 
-#######################################
-#    RDP Shortpath            #
-#######################################
-
-
+#################################################################
+#region    RDP Shortpath                                        #
+#################################################################
 # Reference: https://docs.microsoft.com/en-us/azure/virtual-desktop/shortpath
 
 $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
@@ -200,21 +199,19 @@ try {
 catch {
     Write-Host "*** AVD AIB CUSTOMIZER PHASE *** Cannot create firewall rule *** : [$($_.Exception.Message)]"
 }
- 
 
 $stopwatch.Stop()
 $elapsedTime = $stopwatch.Elapsed
 Write-Host "*** AVD AIB CUSTOMIZER PHASE : Configure RDP shortpath and Windows Defender Firewall  - Exit Code: $LASTEXITCODE ***"
 Write-Host "*** AVD AIB CUSTOMIZER PHASE: Configure RDP shortpath and Windows Defender Firewall - Time taken: $elapsedTime ***"
  
-#############
-#    END    #
-#############
+#################################################################
+#endregion                                                     ##
+#################################################################
 
-#############################################
-#        Disable auto updates               #
-#############################################
-
+#################################################################
+#region    Disable MSIX auto updates                            #
+#################################################################
 function Set-RegKey($registryPath, $registryKey, $registryValue) {
     try {
         IF(!(Test-Path $registryPath)) {
@@ -243,11 +240,14 @@ $elapsedTime = $stopwatch.Elapsed
 Write-Host "*** AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX AA applications - Exit Code: $LASTEXITCODE ***"
 Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX AA applications - Time taken: $elapsedTime "
 
-#############
-#    END    #
-#############
+#################################################################
+#endregion                                                     ##
+#################################################################
 
-# Major Section: Deploy VDOT Optimizations 
+#################################################################
+#region    Deploy VDOT Optimizations                            #
+#################################################################
+
     # IMPORTANT: This script references scripts and config files in a different gitHub Repository: https://github.com/tvanroo/oger-vdot 
 
     # Define the URL of the ZIP file
@@ -270,9 +270,13 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
  
     # Execute the script with arguments
     & $scriptPath -Optimizations AppxPackages, Autologgers, DefaultUserSettings, DiskCleanup, NetworkOptimizations, ScheduledTasks, Services -AdvancedOptimizations Edge -AcceptEULA
- 
-# Major Section: Download Installer FSLogix - Install run later
-    # -----------------------------------------------------
+#################################################################
+#endregion                                                     ##
+#################################################################
+
+################################################################# 
+#region    Download Installer FSLogix - Install run later       #
+#################################################################
     $fslogixExtractPath = "$prepPath\fslogix"
     if (-not (Test-Path -Path $fslogixExtractPath)) {
         New-Item -ItemType Directory -Path $fslogixExtractPath -Force | Out-Null
@@ -285,13 +289,22 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
         Invoke-WebRequest -Uri "https://aka.ms/fslogix_download" -OutFile $fslogixZipPath
         Expand-Archive -LiteralPath $fslogixZipPath -DestinationPath $fslogixExtractPath -Force
     } -ArgumentList $prepPath, $fslogixExtractPath
+#################################################################
+#endregion                                                     ##
+#################################################################
 
-# Major Section: Set Timezone to Eastern
-    # -----------------------------------------------------
+#################################################################
+#region    Set Timezone to Eastern                              #
+#################################################################
     Set-TimeZone -Id "Eastern Standard Time"
 
-# Major Section: Install Visual C++ Redistributable
-    # -----------------------------------------------------
+#################################################################
+#endregion                                                     ##
+#################################################################
+
+#################################################################
+#region    Install Visual C++ Redistributable                   #
+#################################################################
     function Install-Redistributable {
         param (
             [string]$Architecture
@@ -304,8 +317,13 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
     Install-Redistributable -Architecture "x86"
     Install-Redistributable -Architecture "x64"
 
+#################################################################
+#endregion                                                     ##
+#################################################################
 
-# Major Section: Enable AVD Teams Optimization
+#################################################################
+#region    Enable AVD Teams Optimization                        #
+#################################################################
     # -----------------------------------------------------
     $registryPath = "HKLM:\SOFTWARE\Microsoft\Teams"
     $valueName = "IsWVDEnvironment"
@@ -319,20 +337,73 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
     
     Write-Host "IsWVDEnvironment registry setting applied successfully."
     
+#################################################################
+#endregion                                                     ##
+#################################################################
 
-# Major Section: Install/update WebRTC for AVD
-    # -----------------------------------------------------
+#################################################################
+#region    Install/update WebRTC for AVD                        #
+#################################################################
     $msiPath = Join-Path -Path $prepPath -ChildPath "msrdcwebrtcsvc.msi"
-    Invoke-WebRequest -Uri "https://aka.ms/msrdcwebrtcsvc/msi" -OutFile $msiPath
-    Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$msiPath`" /quiet /norestart" -Wait
+    $uri = "https://aka.ms/msrdcwebrtcsvc/msi"
+    $retryCount = 3
+    $retryInterval = 5  # seconds
+    
+    function Download-FileWithRetry {
+        param (
+            [string]$uri,
+            [string]$outputPath,
+            [int]$retryCount,
+            [int]$retryInterval
+        )
+    
+        for ($i = 1; $i -le $retryCount; $i++) {
+            try {
+                Write-Host "Attempt $($i): Downloading file from $uri"
+                Invoke-WebRequest -Uri $uri -OutFile $outputPath -ErrorAction Stop
+                Write-Host "Download successful"
+                return $true
+            }
+            catch {
+                Write-Host "Attempt $($i) failed: $($_.Exception.Message)"
+                if ($i -lt $retryCount) {
+                    Write-Host "Retrying in $retryInterval seconds..."
+                    Start-Sleep -Seconds $retryInterval
+                }
+                else {
+                    Write-Host "All attempts failed"
+                    return $false
+                }
+            }
+        }
+    }
+    
+    $downloadSuccess = Download-FileWithRetry -uri $uri -outputPath $msiPath -retryCount $retryCount -retryInterval $retryInterval
+    
+    if ($downloadSuccess) {
+        Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$msiPath`" /quiet /norestart" -Wait
+    }
+    else {
+        Write-Host "Failed to download the MSI file after $retryCount attempts."
+    }
+    
 
+#################################################################
+#endregion                                                     ##
+#################################################################
 
-# Major Section: Execute the function to enable Hyper-V
+#################################################################
+#region    Execute the function to enable Hyper-V               #
+#################################################################
     Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All -NoRestart
 
+#################################################################
+#endregion                                                     ##
+#################################################################
 
-# Major Section: Installing Microsoft 365
-    # -----------------------------------------------------
+#################################################################
+#region    Installing Microsoft 365                             #
+#################################################################
     $odtFolder = Join-Path -Path $prepPath -ChildPath "ODT"
     if (-not (Test-Path -Path $odtFolder)) {
         New-Item -ItemType Directory -Path $odtFolder | Out-Null
@@ -355,10 +426,14 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
     # Use the extracted 'setup.exe' for the Office installation/configuration
     Start-Process -FilePath $setupPath -ArgumentList "/configure `"$xmlFilePath`"" -NoNewWindow -Wait
 
+#################################################################
+#endregion                                                     ##
+#################################################################
 
-# Major Section: Deploy Teams via Bootstrapper
-    # -----------------------------------------------------
- # Define the download URL and target directory
+#################################################################
+#region    Deploy Teams via Bootstrapper                       # 
+#################################################################
+    # Define the download URL and target directory
     $url = "https://go.microsoft.com/fwlink/?linkid=2243204&clcid=0x409"
     $targetDir = "c:\install\installers"
     $fileName = "teamsbootstrapper.exe"
@@ -380,18 +455,21 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
     Start-Process -FilePath $filePath -ArgumentList "-p" -WindowStyle Hidden -Wait
 
     Write-Host "Execution completed."
-<# Disabled on with the hope that the Old Teams and Office UWP are handled by vdot. 
-# Major Section: Initiate Task Scheduled Setting
-    # -----------------------------------------------------
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/initiate-task-scheduler.ps1" -OutFile "$env:TEMP\initiate-task-scheduler.ps1"; & powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$env:TEMP\initiate-task-scheduler.ps1"
-#>
+#################################################################
+#endregion                                                     ##
+#################################################################
 
-# Major Section: Install WebView2 Runtime
-    # -----------------------------------------------------
+#################################################################
+#region    Install WebView2 Runtime                             #
+#################################################################
     Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile "$env:TEMP\MicrosoftEdgeWebview2Setup.exe"; Start-Process -FilePath "$env:TEMP\MicrosoftEdgeWebview2Setup.exe" -NoNewWindow -Wait
+#################################################################
+#endregion                                                     ##
+#################################################################
 
-# Major Section: Install/Update FSLogix 
-     # -----------------------------------------------------
+#################################################################
+#region    Install/Update FSLogix                               #
+#################################################################
     # Wait for the background job to complete before starting FSLogix installation
     Wait-Job -Job $job
     Receive-Job -Job $job
@@ -403,61 +481,111 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
     } else {
         Write-Host "FSLogixAppsSetup.exe was not found after extraction."
     }
+#################################################################
+#endregion                                                     ##
+#################################################################
 
- # Major Section: Taskbar Optimization  
+#################################################################
+#region    Taskbar Optimization                                 #
+#################################################################
+    $prepPath = "c:\install\avd-prep\"
+    if (-not (Test-Path -Path $prepPath)) {
+        New-Item -ItemType Directory -Path $prepPath -Force | Out-Null
+    }
+    
     # Start logging
-    Start-Transcript -Path $prepPath\CustomizeTaskbar_ps1.txt -Append
-
-    [string]$FullRegKeyName = "HKLM:\SOFTWARE\ccmexec\" 
-
+    Start-Transcript -Path "$prepPath\CustomizeTaskbar_ps1.txt" -Append
+    
+    [string]$FullRegKeyName = "HKLM:\SOFTWARE\ccmexec\"
+    
     # Create registry value if it doesn't exist
     If (!(Test-Path $FullRegKeyName)) {
-        New-Item -Path $FullRegKeyName -type Directory -force 
+        New-Item -Path $FullRegKeyName -Type Directory -Force
     }
-    New-itemproperty $FullRegKeyName -Name "CustomizeTaskbar" -Value "1" -Type STRING -Force
-
-    # Load default user registry
-    REG LOAD HKLM\Default C:\Users\Default\NTUSER.DAT
-
-    # Set registry values for default profile
-    $defaultPath = "HKLM:\Default\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-    New-ItemProperty $defaultPath -Name "ShowTaskViewButton" -Value "0" -PropertyType Dword -Force
-    New-ItemProperty $defaultPath -Name "TaskbarDa" -Value "0" -PropertyType Dword -Force
-    New-ItemProperty $defaultPath -Name "TaskbarMn" -Value "0" -PropertyType Dword -Force
-    New-ItemProperty $defaultPath -Name "TaskbarAl" -Value "0" -PropertyType Dword -Force
-
-    # Unload default user registry
-    [GC]::Collect()
-    REG UNLOAD HKLM\Default
-
-    # Update registry values for existing users
-    $UserProfiles = Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\*" |
-        Where-Object { $_.PSChildName -match "S-1-5-21-(\d+-?){4}$" } |
-        Select-Object @{Name = "SID"; Expression = { $_.PSChildName } }, @{Name = "UserHive"; Expression = { "$($_.ProfileImagePath)\NTuser.dat" } }
-
+    New-ItemProperty -Path $FullRegKeyName -Name "CustomizeTaskbar" -Value "1" -PropertyType String -Force
+    
+    # Define the registry values to be added for the default user
+    $values = @(
+        @{Name="ShowTaskViewButton"; Value=0}
+        @{Name="TaskbarDa"; Value=0}
+        @{Name="TaskbarMn"; Value=0}
+        @{Name="TaskbarAl"; Value=0}
+    )
+    
+    # Base registry path for the default user
+    $defaultUserRegPath = "HKEY_USERS\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+    
+    # Function to apply the settings using REG ADD
+    function Set-DefaultUserRegistry {
+        param (
+            [string]$regPath,
+            [string]$name,
+            [int]$value
+        )
+        $cmd = "REG ADD `"$regPath`" /v `"$name`" /t REG_DWORD /d $value /f"
+        Write-Host "Executing: $cmd"
+        cmd.exe /c $cmd
+    }
+    
+    # Apply settings to the default user profile
+    foreach ($value in $values) {
+        Set-DefaultUserRegistry -regPath $defaultUserRegPath -name $value.Name -value $value.Value
+    }
+    
+    Write-Host "Settings applied to the default user profile."
+    
+    # Apply settings to existing user profiles
+    Write-Host "Applying settings to existing user profiles..."
+    
+    # Function to apply the settings to a specified registry path
+    function Set-UserRegistry {
+        param (
+            [string]$regPath,
+            [string]$name,
+            [int]$value
+        )
+        $cmd = "REG ADD `"$regPath`" /v `"$name`" /t REG_DWORD /d $value /f"
+        Write-Host "Executing: $cmd"
+        cmd.exe /c $cmd
+    }
+    
+    # Retrieve all user profiles
+    $UserProfiles = Get-WmiObject -Class Win32_UserProfile | Where-Object { $_.Special -eq $false }
+    
     foreach ($UserProfile in $UserProfiles) {
+        $sid = $UserProfile.SID
+        $profilePath = $UserProfile.LocalPath
+        $profileRegPath = "HKEY_USERS\$sid\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+    
         # Load User NTUser.dat if it's not already loaded
-        $ProfileWasLoaded = Test-Path Registry::HKEY_USERS\$($UserProfile.SID)
+        $ProfileWasLoaded = Test-Path "registry::HKEY_USERS\$sid"
         if ($ProfileWasLoaded -eq $false) {
-            Start-Process -FilePath "CMD.EXE" -ArgumentList "/C REG.EXE LOAD HKU\$($UserProfile.SID) $($UserProfile.UserHive)" -Wait -WindowStyle Hidden
+            Start-Process -FilePath "CMD.EXE" -ArgumentList "/C REG.EXE LOAD HKU\$sid $profilePath\NTUSER.DAT" -Wait -WindowStyle Hidden
         }
-
-        # Set registry values for user profile
-        $userPath = "registry::HKEY_USERS\$($UserProfile.SID)\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
-        New-ItemProperty $userPath -Name "ShowTaskViewButton" -Value "0" -PropertyType Dword -Force
-        New-ItemProperty $userPath -Name "TaskbarDa" -Value "0" -PropertyType Dword -Force
-        New-ItemProperty $userPath -Name "TaskbarMn" -Value "0" -PropertyType Dword -Force
-        New-ItemProperty $userPath -Name "TaskbarAl" -Value "0" -PropertyType Dword -Force
-
+    
+        # Apply settings to the user profile
+        foreach ($value in $values) {
+            Set-UserRegistry -regPath $profileRegPath -name $value.Name -value $value.Value
+        }
+    
         # Unload user's NTUser.dat if it was not previously loaded
         if ($ProfileWasLoaded -eq $false) {
-            [GC]::Collect()
-            Start-Sleep 1
-            Start-Process -FilePath "CMD.EXE" -ArgumentList "/C REG.EXE UNLOAD HKU\$($UserProfile.SID)" -Wait -WindowStyle Hidden
+            Start-Process -FilePath "CMD.EXE" -ArgumentList "/C REG.EXE UNLOAD HKU\$sid" -Wait -WindowStyle Hidden
         }
     }
+    
+    Write-Host "Settings applied to all existing user profiles."
+    
+    # Stop logging
+    Stop-Transcript
+ 
+#################################################################
+#endregion                                                     ##
+#################################################################
 
-# Major Section: Enforce TLS 1.2and higher 
+#################################################################
+#region    Enforce TLS 1.2and higher                            #
+#################################################################
     # TLS 1.0 Server and Client Configuration
     $tls10Paths = @(
         'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Server',
@@ -504,7 +632,97 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
     }
 
     Write-Host "TLS configuration and .NET Framework updates are complete."
+#################################################################
+#endregion                                                     ##
+#################################################################
 
+#################################################################
+#region    Stop Windows from installing new Appx automatically  #
+#################################################################
+    # Define the registry values to be added
+    $values = @(
+        @{Name="ContentDeliveryAllowed"; Value=0}
+        @{Name="OemPreInstalledAppsEnabled"; Value=0}
+        @{Name="PreInstalledAppsEnabled"; Value=0}
+        @{Name="PreInstalledAppsEverEnabled"; Value=0}
+        @{Name="SilentInstalledAppsEnabled"; Value=0}
+        @{Name="SoftLandingEnabled"; Value=0}
+        @{Name="SubscribedContent-338388Enabled"; Value=0}
+        @{Name="SubscribedContent-338389Enabled"; Value=0}
+        @{Name="SubscribedContent-338393Enabled"; Value=0}
+        @{Name="SubscribedContent-338394Enabled"; Value=0}
+        @{Name="SubscribedContent-338395Enabled"; Value=0}
+        @{Name="SubscribedContent-338396Enabled"; Value=0}
+        @{Name="SystemPaneSuggestionsEnabled"; Value=0}
+    )
+
+    # Base registry path for the default user
+    $defaultUserRegPath = "HKEY_USERS\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
+
+    # Function to apply the settings using REG ADD for the default user
+    function Set-DefaultUserRegistry {
+        param (
+            [string]$regPath,
+            [string]$name,
+            [int]$value
+        )
+        $cmd = "REG ADD `"$regPath`" /v `"$name`" /t REG_DWORD /d $value /f"
+        Write-Host "Executing: $cmd"
+        cmd.exe /c $cmd
+    }
+
+    # Apply settings to the default user profile
+    foreach ($value in $values) {
+        Set-DefaultUserRegistry -regPath $defaultUserRegPath -name $value.Name -value $value.Value
+    }
+
+    Write-Host "Settings applied to the default user profile."
+
+    # Apply settings to existing user profiles
+    Write-Host "Applying settings to existing user profiles..."
+
+    # Function to apply the settings to a specified registry path for existing users
+    function Set-UserRegistry {
+        param (
+            [string]$regPath,
+            [string]$name,
+            [int]$value
+        )
+        $cmd = "REG ADD `"$regPath`" /v `"$name`" /t REG_DWORD /d $value /f"
+        Write-Host "Executing: $cmd"
+        cmd.exe /c $cmd
+    }
+
+    # Retrieve all user profiles
+    $UserProfiles = Get-WmiObject -Class Win32_UserProfile | Where-Object { $_.Special -eq $false }
+
+    foreach ($UserProfile in $UserProfiles) {
+        $sid = $UserProfile.SID
+        $profilePath = $UserProfile.LocalPath
+        $profileRegPath = "HKEY_USERS\$sid\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
+
+        # Load User NTUser.dat if it's not already loaded
+        $ProfileWasLoaded = Test-Path "registry::HKEY_USERS\$sid"
+        if ($ProfileWasLoaded -eq $false) {
+            Start-Process -FilePath "CMD.EXE" -ArgumentList "/C REG.EXE LOAD HKU\$sid $profilePath\NTUSER.DAT" -Wait -WindowStyle Hidden
+        }
+
+        # Apply settings to the user profile
+        foreach ($value in $values) {
+            Set-UserRegistry -regPath $profileRegPath -name $value.Name -value $value.Value
+        }
+
+        # Unload user's NTUser.dat if it was not previously loaded
+        if ($ProfileWasLoaded -eq $false) {
+            Start-Process -FilePath "CMD.EXE" -ArgumentList "/C REG.EXE UNLOAD HKU\$sid" -Wait -WindowStyle Hidden
+        }
+    }
+
+    Write-Host "Settings applied to all existing user profiles."
+
+#################################################################
+#endregion                                                     ##
+#################################################################
 
 
     # Stop logging
