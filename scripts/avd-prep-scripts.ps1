@@ -724,6 +724,14 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
 #endregion                                                     ##
 #################################################################
 
+#################################################################
+#region    UWP Remove Appx Bloat Apps                           #
+#################################################################
+iex (irm https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Remove%20UWP%20Bloat/UWP%20Remove%20Appx%20All%20Users%20by%20System%20Context%2005-22-24.ps1)
+
+#################################################################
+#endregion                                                     ##
+#################################################################
 
     # Stop logging
     Stop-Transcript
