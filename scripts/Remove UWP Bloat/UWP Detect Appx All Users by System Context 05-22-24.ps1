@@ -70,9 +70,30 @@ foreach ($user in Get-WmiObject -Class Win32_UserProfile | Where-Object { $_.Spe
     }
 }
 
+# Detect provisioned packages
+foreach ($appName in $appNamePatternsAllUsers) {
+    Write-Host "Searching for provisioned packages matching pattern: $appName."
+    $matchedProvisionedApps = Get-AppxProvisionedPackage -Online | Where-Object { $_.DisplayName -like $appName }
+
+    if ($matchedProvisionedApps.Count -eq 0) {
+        Write-Host "No provisioned packages found matching pattern: $appName."
+    } else {
+        $foundApps = $true
+        foreach ($app in $matchedProvisionedApps) {
+            Write-Host "Found provisioned app: $($app.DisplayName) PackageName: $($app.PackageName)." -ForegroundColor Red
+        }
+    }
+}
+
 if (-not $foundApps) {
-    Write-Host "No matching app(s) found for any user."
+    Write-Host "No matching app(s) or provisioned packages found for any user."
+    $exitCode = 0
+} else {
+    Write-Host "One or more matching apps or provisioned packages found."
+    $exitCode = 1
 }
 
 Write-Host "Detection script completed at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss zzz')"
 Stop-Transcript
+
+exit $exitCode

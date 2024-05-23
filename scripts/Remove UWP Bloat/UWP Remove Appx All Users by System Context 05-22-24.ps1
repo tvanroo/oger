@@ -1,7 +1,6 @@
-<# the "MM0DD-YY" at the end of the filename governs if a new version is downloaded and deployed. If saving changes you want implemented, ensure the date is changed to the current date.
-
-This script is grabbed by the silent-launcher.ps1 script set to run at each user login. that launcher won't download a changed version of this file unless the date is changed. Only the latest date will be used. 
-
+<# 
+The "MM0DD-YY" at the end of the filename governs if a new version is downloaded and deployed. If saving changes you want implemented, ensure the date is changed to the current date.
+This script is grabbed by the silent-launcher.ps1 script set to run at each user login. That launcher won't download a changed version of this file unless the date is changed. Only the latest date will be used. 
 #>
 
 # Setup logging infrastructure
@@ -21,35 +20,22 @@ Start-Transcript -Path $logFile
 Write-Host "Starting removal script at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss zzz')"
 
 $appNamePatternsAllUsers = @(
- #   "Clipchamp.Clipchamp",
- #   "Microsoft.549981C3F5F10",
- #   "Microsoft.BingNews",
- #   "Microsoft.Getstarted",
- #   "Microsoft.Office.OneNote",
- #   "Microsoft.PowerAutomateDesktop",
- #   "Microsoft.Windows.DevHome",
- #   "Microsoft.WindowsFeedbackHub",
- #   "Microsoft.YourPhone",
- #   "Microsoft.ZuneMusic",
- #   "Microsoft.ZuneVideo",
- #   "MicrosoftTeams",
- #   "Microsoft.OneDriveSync",
- "Microsoft.Ink.Handwriting.en-US.1.0",
- "Microsoft.Ink.Handwriting.Main.en-US.1.0.1",
- "Microsoft.GamingApp",
- "Microsoft.MicrosoftOfficeHub",
- "Microsoft.OutlookForWindows",
- "Microsoft.SkypeApp",
- "microsoft.windowscommunicationsapps",
- "Microsoft.Xbox.TCUI",
- "Microsoft.XboxGameOverlay",
- "Microsoft.XboxGamingOverlay",
- "Microsoft.XboxIdentityProvider",
- "Microsoft.XboxSpeechToTextOverlay",
- "Microsoft.XboxApp",
- "Microsoft.MixedReality.Portal",
- "Microsoft.Wallet",
- "Microsoft.Windows.Ai.Copilot.Provider"
+    "Microsoft.Ink.Handwriting.en-US.1.0",
+    "Microsoft.Ink.Handwriting.Main.en-US.1.0.1",
+    "Microsoft.GamingApp",
+    "Microsoft.MicrosoftOfficeHub",
+    "Microsoft.OutlookForWindows",
+    "Microsoft.SkypeApp",
+    "microsoft.windowscommunicationsapps",
+    "Microsoft.Xbox.TCUI",
+    "Microsoft.XboxGameOverlay",
+    "Microsoft.XboxGamingOverlay",
+    "Microsoft.XboxIdentityProvider",
+    "Microsoft.XboxSpeechToTextOverlay",
+    "Microsoft.XboxApp",
+    "Microsoft.MixedReality.Portal",
+    "Microsoft.Wallet",
+    "Microsoft.Windows.Ai.Copilot.Provider"
 )
 
 # Remove for current user
@@ -76,9 +62,9 @@ foreach ($appName in $appNamePatternsAllUsers) {
 }
 
 # Remove for all users
+$allUsersPackages = Get-AppxPackage -AllUsers
 foreach ($user in Get-WmiObject -Class Win32_UserProfile | Where-Object { $_.Special -eq $false }) {
     $userSid = $user.SID
-    $allUsersPackages = Get-AppxPackage -AllUsers
     foreach ($appName in $appNamePatternsAllUsers) {
         Write-Host "Searching for applications matching pattern: $appName to remove for user with SID: $userSid."
         $matchedApps = $allUsersPackages | Where-Object { $_.Name -like $appName -and $_.InstallLocation -like "*$userSid*" }
@@ -97,6 +83,28 @@ foreach ($user in Get-WmiObject -Class Win32_UserProfile | Where-Object { $_.Spe
             } catch {
                 Write-Host "Failed to remove: $($app.Name) for user with SID: $userSid. Error: $_"
             }
+        }
+    }
+}
+
+# Remove provisioned packages
+foreach ($appName in $appNamePatternsAllUsers) {
+    Write-Host "Searching for provisioned packages matching pattern: $appName."
+    $matchedProvisionedApps = Get-AppxProvisionedPackage -Online | Where-Object { $_.DisplayName -like $appName }
+
+    if ($matchedProvisionedApps.Count -eq 0) {
+        Write-Host "No provisioned packages found matching pattern: $appName."
+        continue
+    }
+
+    foreach ($app in $matchedProvisionedApps) {
+        $removeProvisionedCommand = "Remove-AppxProvisionedPackage -PackageName $($app.PackageName) -Online"
+        Write-Host "Attempting to remove provisioned package: $($app.DisplayName) with command: $removeProvisionedCommand"
+        try {
+            Remove-AppxProvisionedPackage -PackageName $app.PackageName -Online
+            Write-Host "Successfully removed provisioned package: $($app.DisplayName)"
+        } catch {
+            Write-Host "Failed to remove provisioned package: $($app.DisplayName). Error: $_"
         }
     }
 }
