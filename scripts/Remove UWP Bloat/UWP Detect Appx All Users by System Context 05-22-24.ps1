@@ -15,19 +15,8 @@ Start-Transcript -Path $logFile
 Write-Host "Starting detection script at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss zzz')"
 
 $appNamePatternsAllUsers = @(
- #   "Clipchamp.Clipchamp",
- #   "Microsoft.549981C3F5F10",
- #   "Microsoft.BingNews",
- #   "Microsoft.Getstarted",
- #   "Microsoft.Office.OneNote",
- #   "Microsoft.PowerAutomateDesktop",
- #   "Microsoft.Windows.DevHome",
- #   "Microsoft.WindowsFeedbackHub",
- #   "Microsoft.YourPhone",
- #   "Microsoft.ZuneMusic",
- #   "Microsoft.ZuneVideo",
- #   "MicrosoftTeams",
- #   "Microsoft.OneDriveSync",
+    "Microsoft.Ink.Handwriting.en-US.1.0",
+    "Microsoft.Ink.Handwriting.Main.en-US.1.0.1",
     "Microsoft.GamingApp",
     "Microsoft.MicrosoftOfficeHub",
     "Microsoft.OutlookForWindows",
@@ -57,7 +46,7 @@ foreach ($appName in $appNamePatternsAllUsers) {
     } else {
         $foundApps = $true
         foreach ($app in $matchedApps) {
-            Write-Host "Found matching app: $($app.Name) PackageFullName: $($app.PackageFullName) for current user."
+            Write-Host "Found matching app: $($app.Name) PackageFullName: $($app.PackageFullName) for current user." -ForegroundColor Red
         }
     }
 }
@@ -75,7 +64,7 @@ foreach ($user in Get-WmiObject -Class Win32_UserProfile | Where-Object { $_.Spe
         } else {
             $foundApps = $true
             foreach ($app in $matchedApps) {
-                Write-Host "Found matching app: $($app.Name) PackageFullName: $($app.PackageFullName) for user with SID: $userSid."
+                Write-Host "Found matching app: $($app.Name) PackageFullName: $($app.PackageFullName) for user with SID: $userSid." -ForegroundColor Red
             }
         }
     }

@@ -28,6 +28,8 @@ $appNamePatternsCurrentUser = @(
  #   "Microsoft.ZuneVideo",
  #   "MicrosoftTeams",
  #   "Microsoft.OneDriveSync",
+ "Microsoft.Ink.Handwriting.en-US.1.0",
+ "Microsoft.Ink.Handwriting.Main.en-US.1.0.1",
  "Microsoft.GamingApp",
  "Microsoft.MicrosoftOfficeHub",
  "Microsoft.OutlookForWindows",
