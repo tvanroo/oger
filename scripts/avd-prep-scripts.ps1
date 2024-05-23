@@ -1,23 +1,25 @@
 # Tasks Executed:
-#    Disable Storage Sense                                      #
-#    Timezone redirection                                       #
-#    Access to Azure File shares for FSLogix profiles           #
-#    RDP Shortpath                                              #
-#    Disable MSIX auto updates                                  #
-#    Deploy VDOT Optimizations                                  #
-#    Download Installer FSLogix - Install run later             #
-#    Set Timezone to Eastern                                    #
-#    Install Visual C++ Redistributable                         #
-#    Enable AVD Teams Optimization                              #
-#    Install/update WebRTC for AVD                              #
-#    Execute the function to enable Hyper-V                     #
-#    Installing Microsoft 365                                   #
-#    Deploy Teams via Bootstrapper                              # 
-#    Install WebView2 Runtime                                   #
-#    Install/Update FSLogix                                     #
-#    Taskbar Optimization                                       #
-#    Enforce TLS 1.2and higher                                  #
-#    Stop Windows from installing new Appx automatically        #
+#    Disable Storage Sense                                #
+#    Timezone redirection                                 #
+#    Access to Azure File shares for FSLogix profiles     #
+#    RDP Shortpath                                        #
+#    Disable MSIX auto updates                            #
+#    Deploy VDOT Optimizations                            #
+#    Download Installer FSLogix - Install run later       #
+#    Set Timezone to Eastern                              #
+#    Install Visual C++ Redistributable                   #
+#    Enable AVD Teams Optimization                        #
+#    Install/update WebRTC for AVD                        #
+#    Execute the function to enable Hyper-V               #
+#    Installing Microsoft 365                             #
+#    Deploy Teams via Bootstrapper                        # 
+#    Install WebView2 Runtime                             #
+#    Install/Update FSLogix                               #
+#    Taskbar Optimization                                 #
+#    Enforce TLS 1.2and higher                            #
+#    Stop Windows from installing new Appx automatically  #
+#    UWP Remove Appx Bloat Apps                           #
+
 
 #################################################################
 #region    Ensure the AVD preparation directory exists          #
