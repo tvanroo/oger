@@ -1,6 +1,6 @@
 <# the "MM0DD-YY" at the end of the filename governs if a new version is downloaded and deployed. If saving changes you want implemented, ensure the date is changed to the current date.
 
-This script is grabbed by the silent-launcher.ps1 script set to run at each user login. that launcherwon't download a changed version of this file unless the date is changed. Only the latest date will be used. 
+This script is grabbed by the silent-launcher.ps1 script set to run at each user login. that launcher won't download a changed version of this file unless the date is changed. Only the latest date will be used. 
 
 #>
 
@@ -20,26 +20,20 @@ Get-ChildItem -Path $logDir -Filter "remove-*.txt" | Where-Object {
 Start-Transcript -Path $logFile
 Write-Host "Starting removal script at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss zzz')"
 
-$appNamePatternsCurrentUser = @(
+$appNamePatternsAllUsers = @(
     "Microsoft.OutlookForWindows",
     "Microsoft.MicrosoftOfficeHub",
     "microsoft.windowscommunicationsapps",
     "Clipchamp.Clipchamp",
     "Microsoft.549981C3F5F10",
     "Microsoft.BingNews",
-    "Microsoft.BingWeather",
     "Microsoft.GamingApp",
     "Microsoft.Getstarted",
     "Microsoft.Office.OneNote",
-    "Microsoft.MicrosoftSolitaireCollection",
-    "Microsoft.People",
     "Microsoft.PowerAutomateDesktop",
     "Microsoft.SkypeApp",
-    "Microsoft.Todos",
     "Microsoft.Windows.DevHome",
-    "Microsoft.Windows.Photos",
     "Microsoft.WindowsFeedbackHub",
-    "Microsoft.WindowsMaps",
     "Microsoft.Xbox.TCUI",
     "Microsoft.XboxGameOverlay",
     "Microsoft.XboxGamingOverlay",
@@ -56,13 +50,14 @@ $appNamePatternsCurrentUser = @(
     "Microsoft.Windows.Ai.Copilot.Provider"
 )
 
+# Remove for current user
 $currentUserPackages = Get-AppxPackage
-foreach ($appName in $appNamePatternsCurrentUser) {
-    Write-Host "Searching for applications matching pattern: $appName to remove."
+foreach ($appName in $appNamePatternsAllUsers) {
+    Write-Host "Searching for applications matching pattern: $appName to remove for current user."
     $matchedApps = $currentUserPackages | Where-Object { $_.Name -like $appName }
 
     if ($matchedApps.Count -eq 0) {
-        Write-Host "No applications found matching pattern: $appName."
+        Write-Host "No applications found matching pattern: $appName for current user."
         continue
     }
 
@@ -74,6 +69,32 @@ foreach ($appName in $appNamePatternsCurrentUser) {
             Write-Host "Successfully removed: $($app.Name)"
         } catch {
             Write-Host "Failed to remove: $($app.Name). Error: $_"
+        }
+    }
+}
+
+# Remove for all users
+foreach ($user in Get-WmiObject -Class Win32_UserProfile | Where-Object { $_.Special -eq $false }) {
+    $userSid = $user.SID
+    $allUsersPackages = Get-AppxPackage -AllUsers
+    foreach ($appName in $appNamePatternsAllUsers) {
+        Write-Host "Searching for applications matching pattern: $appName to remove for user with SID: $userSid."
+        $matchedApps = $allUsersPackages | Where-Object { $_.Name -like $appName -and $_.InstallLocation -like "*$userSid*" }
+
+        if ($matchedApps.Count -eq 0) {
+            Write-Host "No applications found matching pattern: $appName for user with SID: $userSid."
+            continue
+        }
+
+        foreach ($app in $matchedApps) {
+            $removeCommand = "Remove-AppxPackage -Package $($app.PackageFullName) -User $userSid"
+            Write-Host "Attempting to remove: $($app.Name) for user with SID: $userSid with command: $removeCommand"
+            try {
+                Remove-AppxPackage -Package $app.PackageFullName -User $userSid
+                Write-Host "Successfully removed: $($app.Name) for user with SID: $userSid"
+            } catch {
+                Write-Host "Failed to remove: $($app.Name) for user with SID: $userSid. Error: $_"
+            }
         }
     }
 }

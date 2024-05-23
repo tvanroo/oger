@@ -14,26 +14,20 @@ Get-ChildItem -Path $logDir -Filter "detect-*.txt" | Where-Object {
 Start-Transcript -Path $logFile
 Write-Host "Starting detection script at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss zzz')"
 
-$appNamePatternsCurrentUser = @(
+$appNamePatternsAllUsers = @(
     "Microsoft.OutlookForWindows",
     "Microsoft.MicrosoftOfficeHub",
     "microsoft.windowscommunicationsapps",
     "Clipchamp.Clipchamp",
     "Microsoft.549981C3F5F10",
     "Microsoft.BingNews",
-    "Microsoft.BingWeather",
     "Microsoft.GamingApp",
     "Microsoft.Getstarted",
     "Microsoft.Office.OneNote",
-    "Microsoft.MicrosoftSolitaireCollection",
-    "Microsoft.People",
     "Microsoft.PowerAutomateDesktop",
     "Microsoft.SkypeApp",
-    "Microsoft.Todos",
     "Microsoft.Windows.DevHome",
-    "Microsoft.Windows.Photos",
     "Microsoft.WindowsFeedbackHub",
-    "Microsoft.WindowsMaps",
     "Microsoft.Xbox.TCUI",
     "Microsoft.XboxGameOverlay",
     "Microsoft.XboxGamingOverlay",
@@ -50,25 +44,45 @@ $appNamePatternsCurrentUser = @(
     "Microsoft.Windows.Ai.Copilot.Provider"
 )
 
-$currentUserPackages = Get-AppxPackage
 $foundApps = $false
 
-foreach ($appName in $appNamePatternsCurrentUser) {
-    Write-Host "Searching for applications matching pattern: $appName"
+# Detect for current user
+$currentUserPackages = Get-AppxPackage
+foreach ($appName in $appNamePatternsAllUsers) {
+    Write-Host "Searching for applications matching pattern: $appName for current user."
     $matchedApps = $currentUserPackages | Where-Object { $_.Name -like $appName }
 
     if ($matchedApps.Count -eq 0) {
-        Write-Host "No applications found matching pattern: $appName."
+        Write-Host "No applications found matching pattern: $appName for current user."
     } else {
         $foundApps = $true
         foreach ($app in $matchedApps) {
-            Write-Host "Found matching app: $($app.Name) PackageFullName: $($app.PackageFullName)"
+            Write-Host "Found matching app: $($app.Name) PackageFullName: $($app.PackageFullName) for current user."
+        }
+    }
+}
+
+# Detect for all users
+foreach ($user in Get-WmiObject -Class Win32_UserProfile | Where-Object { $_.Special -eq $false }) {
+    $userSid = $user.SID
+    $allUsersPackages = Get-AppxPackage -AllUsers
+    foreach ($appName in $appNamePatternsAllUsers) {
+        Write-Host "Searching for applications matching pattern: $appName for user with SID: $userSid."
+        $matchedApps = $allUsersPackages | Where-Object { $_.Name -like $appName -and $_.InstallLocation -like "*$userSid*" }
+
+        if ($matchedApps.Count -eq 0) {
+            Write-Host "No applications found matching pattern: $appName for user with SID: $userSid."
+        } else {
+            $foundApps = $true
+            foreach ($app in $matchedApps) {
+                Write-Host "Found matching app: $($app.Name) PackageFullName: $($app.PackageFullName) for user with SID: $userSid."
+            }
         }
     }
 }
 
 if (-not $foundApps) {
-    Write-Host "No matching app(s) for the current user found."
+    Write-Host "No matching app(s) found for any user."
 }
 
 Write-Host "Detection script completed at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss zzz')"
