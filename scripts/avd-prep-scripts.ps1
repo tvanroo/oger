@@ -2,6 +2,7 @@
 
 <# Tasks Executed:
 # Major Section: Ensure the AVD preparation directory exists
+# Disable Storage Sense
 # Major Section: Deploy VDOT Optimizations 
 # Major Section: Download Installer FSLogix - Install run later
 # Major Section: Set Timezone to Eastern
@@ -24,6 +25,227 @@
     if (-not (Test-Path -Path $prepPath)) {
         New-Item -ItemType Directory -Path $prepPath -Force | Out-Null
     }
+
+
+#######################################
+#    Disable Storage Sense            #
+#######################################
+
+$stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+Write-Host "***Starting AVD AIB CUSTOMIZER PHASE: Disable Storage Sense Start -  $((Get-Date).ToUniversalTime()) "
+
+$registryPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\StorageSense"
+$registryKey = "AllowStorageSenseGlobal"
+$registryValue = "0"
+
+$registryPathWin11 = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\StorageSense"
+
+IF(!(Test-Path $registryPath)) {
+    New-Item -Path $registryPath -Force
+}
+
+IF(!(Test-Path $registryPathWin11)) {
+    New-Item -Path $registryPathWin11 -Force
+}
+
+Set-RegKey -registryPath $registryPath -registryKey $registryKey -registryValue $registryValue
+Set-RegKey -registryPath $registryPathWin11 -registryKey $registryKey -registryValue $registryValue
+
+$stopwatch.Stop()
+$elapsedTime = $stopwatch.Elapsed
+Write-Host "*** AVD AIB CUSTOMIZER PHASE: Disable Storage Sense - Exit Code: $LASTEXITCODE ***"
+Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable Storage Sense - Time taken: $elapsedTime "
+
+function Set-RegKey($registryPath, $registryKey, $registryValue) {
+    try {
+         Write-Host "*** AVD AIB CUSTOMIZER PHASE ***  Disable Storage Sense - Setting  $registryKey with value $registryValue ***"
+         New-ItemProperty -Path $registryPath -Name $registryKey -Value $registryValue -PropertyType DWORD -Force -ErrorAction Stop
+    }
+    catch {
+         Write-Host "*** AVD AIB CUSTOMIZER PHASE ***   Disable Storage Sense  - Cannot add the registry key  $registryKey *** : [$($_.Exception.Message)]"
+    }
+ }
+
+#############
+#    END    #
+#############
+
+#######################################
+#    Timezone redirection             #
+#######################################
+
+$stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+Write-Host "*** AVD AIB CUSTOMIZER PHASE: Timezone redirection ***"
+
+$registryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"
+$registryKey = "fEnableTimeZoneRedirection"
+$registryValue = "1"
+
+IF(!(Test-Path $registryPath)) {
+    New-Item -Path $registryPath -Force | Out-Null
+}
+
+try {
+    New-ItemProperty -Path $registryPath -Name $registryKey -Value $registryValue -PropertyType DWORD -Force | Out-Null
+}
+catch {
+    Write-Host "*** AVD AIB CUSTOMIZER PHASE ***  Timezone redirection - Cannot add the registry key *** : [$($_.Exception.Message)]"
+    Write-Host "Message: [$($_.Exception.Message)"]
+}
+
+$stopwatch.Stop()
+$elapsedTime = $stopwatch.Elapsed
+Write-Host "*** AVD AIB CUSTOMIZER PHASE: Timezone redirection -  Exit Code: $LASTEXITCODE ***"
+Write-Host "*** AVD AIB CUSTOMIZER PHASE: Timezone redirection - Time taken: $elapsedTime ***"
+
+#############
+#    END    #
+#############
+
+#################################################################
+#    Access to Azure File shares for FSLogix profiles           #
+#################################################################
+
+$stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+Write-Host "*** Starting AVD AIB CUSTOMIZER PHASE: Access to Azure File shares for FSLogix profiles  ***"
+
+# Enable Azure AD Kerberos
+
+Write-Host '*** WVD AIB CUSTOMIZER PHASE *** Enable Azure AD Kerberos ***'
+$registryPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\Kerberos\Parameters"
+$registryKey= "CloudKerberosTicketRetrievalEnabled"
+$registryValue = "1"
+
+IF(!(Test-Path $registryPath)) {
+    New-Item -Path $registryPath -Force | Out-Null
+}
+
+try {
+    New-ItemProperty -Path $registryPath -Name $registryKey -Value $registryValue -PropertyType DWORD -Force | Out-Null
+}
+catch {
+    Write-Host "*** AVD AIB CUSTOMIZER PHASE ***  Enable Azure AD Kerberos - Cannot add the registry key $registryKey *** : [$($_.Exception.Message)]"
+    Write-Host "Message: [$($_.Exception.Message)"]
+}
+
+
+# Create new reg key "LoadCredKey"
+ 
+Write-Host '*** AVD AIB CUSTOMIZER PHASE *** Create new reg key LoadCredKey ***'
+
+$LoadCredRegPath = "HKLM:\Software\Policies\Microsoft\AzureADAccount"
+$LoadCredName = "LoadCredKeyFromProfile"
+$LoadCredValue = "1"
+
+IF(!(Test-Path $LoadCredRegPath)) {
+     New-Item -Path $LoadCredRegPath -Force | Out-Null
+}
+
+try {
+    New-ItemProperty -Path $LoadCredRegPath -Name $LoadCredName -Value $LoadCredValue -PropertyType DWORD -Force | Out-Null
+}
+catch {
+    Write-Host "*** AVD AIB CUSTOMIZER PHASE ***  LoadCredKey - Cannot add the registry key $LoadCredName *** : [$($_.Exception.Message)]"
+    Write-Host "Message: [$($_.Exception.Message)"]
+}
+
+$stopwatch.Stop()
+$elapsedTime = $stopwatch.Elapsed
+Write-Host "*** AVD AIB CUSTOMIZER PHASE : Access to Azure File shares for FSLogix profiles - Exit Code: $LASTEXITCODE ***"
+Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Access to Azure File shares for FSLogix profiles - Time taken: $elapsedTime "
+
+
+#############
+#    END    #
+#############
+
+#######################################
+#    RDP Shortpath            #
+#######################################
+
+
+# Reference: https://docs.microsoft.com/en-us/azure/virtual-desktop/shortpath
+
+$stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+write-host 'AVD AIB Customization: Configure RDP shortpath and Windows Defender Firewall'
+
+# rdp shortpath reg key
+$WinstationsKey = 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations'
+
+$regKeyName = "fUseUdpPortRedirector"
+$regKeyValue = "1"
+
+$portName = "UdpPortNumber"
+$portValue = "3390"
+
+
+IF(!(Test-Path $WinstationsKey)) {
+    New-Item -Path $WinstationsKey -Force | Out-Null
+}
+
+try {
+    New-ItemProperty -Path $WinstationsKey -Name $regKeyName -ErrorAction:SilentlyContinue -PropertyType:dword -Value $regKeyValue -Force | Out-Null
+    New-ItemProperty -Path $WinstationsKey -Name $portName -ErrorAction:SilentlyContinue -PropertyType:dword -Value $portValue -Force | Out-Null
+}
+catch {
+    Write-Host "*** AVD AIB CUSTOMIZER PHASE *** RDP Shortpath - Cannot add the registry key *** : [$($_.Exception.Message)]"
+    Write-Host "Message: [$($_.Exception.Message)"]
+}
+
+# set up windows defender firewall
+
+try {
+    New-NetFirewallRule -DisplayName 'Remote Desktop - Shortpath (UDP-In)'  -Action Allow -Description 'Inbound rule for the Remote Desktop service to allow RDP traffic. [UDP 3390]' -Group '@FirewallAPI.dll,-28752' -Name 'RemoteDesktop-UserMode-In-Shortpath-UDP'  -PolicyStore PersistentStore -Profile Domain, Private -Service TermService -Protocol udp -LocalPort 3390 -Program '%SystemRoot%\system32\svchost.exe' -Enabled:True
+}
+catch {
+    Write-Host "*** AVD AIB CUSTOMIZER PHASE *** Cannot create firewall rule *** : [$($_.Exception.Message)]"
+}
+ 
+
+$stopwatch.Stop()
+$elapsedTime = $stopwatch.Elapsed
+Write-Host "*** AVD AIB CUSTOMIZER PHASE : Configure RDP shortpath and Windows Defender Firewall  - Exit Code: $LASTEXITCODE ***"
+Write-Host "*** AVD AIB CUSTOMIZER PHASE: Configure RDP shortpath and Windows Defender Firewall - Time taken: $elapsedTime ***"
+ 
+#############
+#    END    #
+#############
+
+#############################################
+#        Disable auto updates               #
+#############################################
+
+function Set-RegKey($registryPath, $registryKey, $registryValue) {
+    try {
+        IF(!(Test-Path $registryPath)) {
+            New-Item -Path $registryPath -Force
+        }
+
+        Write-Host "*** AVD AIB CUSTOMIZER PHASE ***  Disable auto updates for MSIX AA applications - Setting  $registryKey with value $registryValue ***"
+        New-ItemProperty -Path $registryPath -Name $registryKey -Value $registryValue -PropertyType DWORD -Force -ErrorAction Stop
+    }
+    catch {
+         Write-Host "*** AVD AIB CUSTOMIZER PHASE ***   Disable Storage Sense  - Cannot add the registry key  $registryKey *** : [$($_.Exception.Message)]"
+    }
+ }
+
+$stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+Write-Host "***Starting AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX AA applications -  $((Get-Date).ToUniversalTime()) "
+
+Set-RegKey -registryPath "HKLM\Software\Policies\Microsoft\WindowsStore" -registryKey "AutoDownload" -registryValue "2"
+Set-RegKey -registryPath "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -registryKey "PreInstalledAppsEnabled" -registryValue "0"
+Set-RegKey -registryPath "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\Debug" -registryKey "ContentDeliveryAllowedOverride" -registryValue "0x2"
+
+Disable-ScheduledTask -TaskPath "\Microsoft\Windows\WindowsUpdate\" -TaskName "Scheduled Start"
+
+$stopwatch.Stop()
+$elapsedTime = $stopwatch.Elapsed
+Write-Host "*** AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX AA applications - Exit Code: $LASTEXITCODE ***"
+Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX AA applications - Time taken: $elapsedTime "
+
+#############
+#    END    #
+#############
 
 # Major Section: Deploy VDOT Optimizations 
     # IMPORTANT: This script references scripts and config files in a different gitHub Repository: https://github.com/tvanroo/oger-vdot 
