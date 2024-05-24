@@ -55,7 +55,7 @@ Executes the script to first download the Teamsbootstrapper.exe from Microsoft a
 
 .EXAMPLE
 .\Install-MSTeams.ps1 -ForceInstall -SetRunOnce
-Executes the script and attempts to force the installation by uninstalling MSTeams before attepmting an installation.
+Executes the script and attempts to force the installation by uninstalling MSTeams before attempting an installation.
 SetRunOnce will add a RunOnce registry entry and scheduled task to speed up the installation of MSTeams.
 These are the recommended parameters for installation.
 
@@ -129,7 +129,6 @@ function CreateScheduledTask {
     $UnregTask = Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-
 function SetRunOnce {
     param (
         $PackageName,
@@ -151,6 +150,12 @@ function SetRunOnce {
     }
     else {
         Log "Creating RunOnce registry value: $value"
+        
+        # Ensure parent keys exist
+        if (-not (Test-Path "HKLM:\Default\Software\Microsoft\Windows\CurrentVersion\RunOnce")) {
+            New-Item -Path "HKLM:\Default\Software\Microsoft\Windows\CurrentVersion" -Name "RunOnce" -Force | Out-Null
+        }
+
         $reg = New-ItemProperty -Path "HKLM:\Default\Software\Microsoft\Windows\CurrentVersion\RunOnce" -PropertyType "String" -Name "$($RunOnceRegName)" -Value $Value -Force
     }
 
@@ -182,6 +187,12 @@ function SetRunOnce {
         }
         else {
             Log "Creating RunOnce registry value for: $($UserProfile.UserHive) with SID $($UserProfile.SID)"
+            
+            # Ensure parent keys exist
+            if (-not (Test-Path "registry::HKEY_USERS\$($UserProfile.SID)\Software\Microsoft\Windows\CurrentVersion\RunOnce")) {
+                New-Item -Path "registry::HKEY_USERS\$($UserProfile.SID)\Software\Microsoft\Windows\CurrentVersion" -Name "RunOnce" -Force | Out-Null
+            }
+
             $reg = New-ItemProperty "registry::HKEY_USERS\$($UserProfile.SID)\Software\Microsoft\Windows\CurrentVersion\RunOnce" -PropertyType "String" -Name "$($RunOnceRegName)" -Value $Value -Force
         }
 
@@ -365,8 +376,6 @@ if ($DownloadExe) {
         Log "Verification of downloaded Teamsbootstrapper.exe failed"
     }
 }
-
-
 
 if (-not(Test-Path -Path $EXEFolder\$EXE)) {
     Log "Failed to find $EXE"
