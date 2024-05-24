@@ -433,9 +433,9 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
 #################################################################
 
 #################################################################
-#region    Deploy Teams via Bootstrapper                       # 
+#region    Deploy Teams via Bootstrapper  OLD                     # 
 #################################################################
-    # Define the download URL and target directory
+<#     # Define the download URL and target directory
     $url = "https://go.microsoft.com/fwlink/?linkid=2243204&clcid=0x409"
     $targetDir = "c:\install\installers"
     $fileName = "teamsbootstrapper.exe"
@@ -457,6 +457,26 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
     Start-Process -FilePath $filePath -ArgumentList "-p" -WindowStyle Hidden -Wait
 
     Write-Host "Execution completed."
+    #>
+#################################################################
+#endregion                                                     ##
+#################################################################
+
+#################################################################
+#region    Deploy Teams via Bootstrapper  NEW                   # 
+#################################################################
+$scriptUrl = "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Deploy%20Teams%20via%20Bootstrapper/Deploy%20New%20Teams%20Run%20Once.ps1"
+$scriptContent = Invoke-RestMethod -Uri $scriptUrl
+
+# Save the script content to a temporary file
+$tempScriptPath = [System.IO.Path]::GetTempFileName() + ".ps1"
+Set-Content -Path $tempScriptPath -Value $scriptContent
+
+# Execute the script with parameters
+& $tempScriptPath -DownloadExe -ForceInstall -SetRunOnce
+
+# Remove the temporary script file
+Remove-Item -Path $tempScriptPath -Force
 #################################################################
 #endregion                                                     ##
 #################################################################
