@@ -1,4 +1,6 @@
 # Tasks Executed:
+#    Ensure the AVD preparation directory exists          #
+#    Deploy Teams via Bootstrapper                        # 
 #    Disable Storage Sense                                #
 #    Timezone redirection                                 #
 #    Access to Azure File shares for FSLogix profiles     #
@@ -12,7 +14,6 @@
 #    Install/update WebRTC for AVD                        #
 #    Execute the function to enable Hyper-V               #
 #    Installing Microsoft 365                             #
-#    Deploy Teams via Bootstrapper                        # 
 #    Install WebView2 Runtime                             #
 #    Install/Update FSLogix                               #
 #    Taskbar Optimization                                 #
@@ -32,7 +33,24 @@
 #################################################################
 #endregion                                                     ##
 #################################################################
+#################################################################
+#region    Deploy Teams via Bootstrapper  NEW                   # 
+#################################################################
+$scriptUrl = "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Deploy%20Teams%20via%20Bootstrapper/Deploy%20New%20Teams%20Run%20Once.ps1"
+$scriptContent = Invoke-RestMethod -Uri $scriptUrl
 
+# Save the script content to a temporary file
+$tempScriptPath = [System.IO.Path]::GetTempFileName() + ".ps1"
+Set-Content -Path $tempScriptPath -Value $scriptContent
+
+# Execute the script with parameters
+& $tempScriptPath -DownloadExe -ForceInstall -SetRunOnce
+
+# Remove the temporary script file
+Remove-Item -Path $tempScriptPath -Force
+#################################################################
+#endregion                                                     ##
+#################################################################
 #################################################################
 #region    Disable Storage Sense                                #
 #################################################################
@@ -210,7 +228,7 @@ Write-Host "*** AVD AIB CUSTOMIZER PHASE: Configure RDP shortpath and Windows De
 #################################################################
 #endregion                                                     ##
 #################################################################
-
+<#
 #################################################################
 #region    Disable MSIX auto updates                            #
 #################################################################
@@ -245,7 +263,7 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
 #################################################################
 #endregion                                                     ##
 #################################################################
-
+#>
 #################################################################
 #region    Deploy VDOT Optimizations                            #
 #################################################################
@@ -271,7 +289,7 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
     $scriptPath = Join-Path -Path $prepPath -ChildPath "oger-vdot-main\Windows_VDOT.ps1"
  
     # Execute the script with arguments
-    & $scriptPath -Optimizations AppxPackages, Autologgers, DefaultUserSettings, DiskCleanup, NetworkOptimizations, ScheduledTasks, Services -AdvancedOptimizations Edge -AcceptEULA
+    & $scriptPath -Optimizations <#AppxPackages, #>Autologgers, DefaultUserSettings, DiskCleanup, NetworkOptimizations, ScheduledTasks, Services <#-AdvancedOptimizations Edge#> -AcceptEULA
 #################################################################
 #endregion                                                     ##
 #################################################################
@@ -462,24 +480,7 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
 #endregion                                                     ##
 #################################################################
 
-#################################################################
-#region    Deploy Teams via Bootstrapper  NEW                   # 
-#################################################################
-$scriptUrl = "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Deploy%20Teams%20via%20Bootstrapper/Deploy%20New%20Teams%20Run%20Once.ps1"
-$scriptContent = Invoke-RestMethod -Uri $scriptUrl
 
-# Save the script content to a temporary file
-$tempScriptPath = [System.IO.Path]::GetTempFileName() + ".ps1"
-Set-Content -Path $tempScriptPath -Value $scriptContent
-
-# Execute the script with parameters
-& $tempScriptPath -DownloadExe -ForceInstall -SetRunOnce
-
-# Remove the temporary script file
-Remove-Item -Path $tempScriptPath -Force
-#################################################################
-#endregion                                                     ##
-#################################################################
 
 #################################################################
 #region    Install WebView2 Runtime                             #
