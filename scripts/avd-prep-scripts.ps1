@@ -755,6 +755,3 @@ iex (irm https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Remove%20UW
 #################################################################
 #endregion                                                     ##
 #################################################################
-
-    # Stop logging
-    Stop-Transcript

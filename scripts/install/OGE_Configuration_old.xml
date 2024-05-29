@@ -1,4 +1,4 @@
-<Configuration ID="f0dacaec-3389-4303-bd7d-61d41bb7ce2d">
+<Configuration ID="2d7f5245-c987-4263-9587-3e58499cdaca">
   <Add OfficeClientEdition="64" Channel="Current">
     <Product ID="O365ProPlusRetail">
       <Language ID="en-us" />
@@ -6,17 +6,13 @@
       <ExcludeApp ID="Lync" />
     </Product>
   </Add>
-  <Property Name="SharedComputerLicensing" Value="0" />
-  <Property Name="FORCEAPPSHUTDOWN" Value="TRUE" />
-  <Property Name="DeviceBasedLicensing" Value="0" />
-  <Property Name="SCLCacheOverride" Value="0" />
   <Updates Enabled="TRUE" />
   <RemoveMSI />
   <AppSettings>
-    <Setup Name="Company" Value="OGE" />
+    <Setup Name="Company" Value="USOGE" />
     <User Key="software\microsoft\office\16.0\excel\options" Name="defaultformat" Value="51" Type="REG_DWORD" App="excel16" Id="L_SaveExcelfilesas" />
     <User Key="software\microsoft\office\16.0\powerpoint\options" Name="defaultformat" Value="27" Type="REG_DWORD" App="ppt16" Id="L_SavePowerPointfilesas" />
     <User Key="software\microsoft\office\16.0\word\options" Name="defaultformat" Value="" Type="REG_SZ" App="word16" Id="L_SaveWordfilesas" />
   </AppSettings>
-  <Display Level="None" AcceptEULA="FALSE" />
+  <Display Level="Full" AcceptEULA="TRUE" />
 </Configuration>
