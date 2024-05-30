@@ -1,17 +1,19 @@
-﻿# Define the target directory and file name
-$targetDir = "c:\install\installers"
-$fileName = "teamsbootstrapper.exe"
+﻿# Detection script for Microsoft Teams installation via Intune
 
-# Construct the full file path
-$filePath = Join-Path -Path $targetDir -ChildPath $fileName
+# Exit codes
+$exitCodeInstalled = 0      # Exit code for app installed
+$exitCodeNotInstalled = 1   # Exit code for app not installed
 
-# Check if the file already exists
-if (Test-Path -Path $filePath) {
-    # File exists, exit with code 0 to indicate success
-    Write-Host "File exists: $filePath"
-    exit 0
-} else {
-    # File does not exist, exit with code 1 to indicate action needed
-    Write-Host "File not found: $filePath"
-    exit 1
+try {
+    # Check if Microsoft Teams is installed
+    if ("MSTeams" -in (Get-ProvisionedAppPackage -Online).DisplayName) {
+        Write-Output "Installed"
+        exit $exitCodeInstalled
+    } else {
+        Write-Output "Not Installed"
+        exit $exitCodeNotInstalled
+    }
+} catch {
+    Write-Output "Error during detection"
+    exit $exitCodeNotInstalled
 }
