@@ -20,6 +20,7 @@
 #    Enforce TLS 1.2and higher                            #
 #    Stop Windows from installing new Appx automatically  #
 #    UWP Remove Appx Bloat Apps                           #
+#    Download and Install OneDrive for All Users          #
 
 
 #################################################################
@@ -884,6 +885,43 @@ Write-Host "Completed the process to remove UWP Appx Bloat Apps." -ForegroundCol
 #>
 
 #endregion
+# Define the preparation path at the beginning of the script
+$prepPath = "c:\install\avd-prep\"
+if (-not (Test-Path -Path $prepPath)) {
+    New-Item -ItemType Directory -Path $prepPath -Force | Out-Null
+}
+
+# Define the log file name with the current timestamp
+$timestamp = (Get-Date).ToString("yyyy-MM-dd-HH-mm-ss")
+$logFilePath = Join-Path -Path $prepPath -ChildPath "avd-prep-script-$timestamp.log"
+
+# Start logging
+Start-Transcript -Path $logFilePath -Append
+
+#################################################################
+#region    Download and Install OneDrive for All Users          #
+#################################################################
+
+Write-Host "Starting the process to download and install OneDrive for all users..." -ForegroundColor Green
+
+# Define the OneDrive installer URL and target path
+$oneDriveUrl = "https://go.microsoft.com/fwlink/?linkid=844652"
+$oneDriveExePath = Join-Path -Path $prepPath -ChildPath "OneDriveSetup.exe"
+
+Write-Host "Downloading the OneDrive installer..."
+# Download the OneDrive installer
+Invoke-WebRequest -Uri $oneDriveUrl -OutFile $oneDriveExePath
+
+Write-Host "Installing OneDrive for all users..."
+# Run the OneDrive installer with /allusers parameter
+Start-Process -FilePath $oneDriveExePath -ArgumentList "/allusers" -Wait
+
+Write-Host "Completed the process to download and install OneDrive for all users." -ForegroundColor Green
+
+#endregion
+
+# End logging
+Stop-Transcript
 
 # End logging
 Stop-Transcript
