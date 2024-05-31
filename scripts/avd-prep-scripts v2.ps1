@@ -205,6 +205,7 @@ Write-Host "Completed the process to enable AVD Teams Optimization." -Foreground
 #################################################################
 #region    Install Teams in per-machine mode                    #
 #################################################################
+#$prepPath = "c:\install\avd-prep\"
 
 Write-Host "Starting the process to install Teams in per-machine mode..." -ForegroundColor Green
 

@@ -7,7 +7,7 @@
 #    RDP Shortpath                                        #
 #    Disable MSIX auto updates                            #
 #    Deploy VDOT Optimizations                            #
-#    Download Installer FSLogix - Install run later       #
+#    Install/Update FSLogix                               #
 #    Set Timezone to Eastern                              #
 #    Install Visual C++ Redistributable                   #
 #    Enable AVD Teams Optimization                        #
@@ -15,7 +15,6 @@
 #    Execute the function to enable Hyper-V               #
 #    Installing Microsoft 365                             #
 #    Install WebView2 Runtime                             #
-#    Install/Update FSLogix                               #
 #    Taskbar Optimization                                 #
 #    Enforce TLS 1.2and higher                            #
 #    Stop Windows from installing new Appx automatically  #
@@ -52,7 +51,7 @@ Write-Host "Completed the process to ensure the AVD preparation directory exists
 #region    Deploy Teams via Bootstrapper  NEW                   #
 #################################################################
 #$prepPath = "c:\install\avd-prep\"
-<# 
+
 Write-Host "Starting Deploy Teams via Bootstrapper NEW..." -ForegroundColor Green
 
 $scriptUrl = "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Deploy%20Teams%20via%20Bootstrapper/Deploy%20New%20Teams%20Run%20Once.ps1"
@@ -63,7 +62,7 @@ $tempScriptPath = [System.IO.Path]::GetTempFileName() + ".ps1"
 Set-Content -Path $tempScriptPath -Value $scriptContent
 
 Write-Host "Executing the script with parameters..."
-& $tempScriptPath -DownloadExe -ForceInstall -SetRunOnce
+& $tempScriptPath -DownloadExe -ForceInstall
 
 Write-Host "Removing the temporary script file..."
 Remove-Item -Path $tempScriptPath -Force
