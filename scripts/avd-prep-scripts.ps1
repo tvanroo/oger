@@ -269,7 +269,7 @@ Write-Host "Completed RDP Shortpath." -ForegroundColor Green
 #region    Disable MSIX auto updates                            #
 #################################################################
 #$prepPath = "c:\install\avd-prep\"
-
+<#
 Write-Host "Starting the process to disable MSIX auto updates..." -ForegroundColor Green
 
 function Set-RegKey($registryPath, $registryKey, $registryValue) {
@@ -301,7 +301,7 @@ Disable-ScheduledTask -TaskPath "\Microsoft\Windows\WindowsUpdate\" -TaskName "S
 $stopwatch.Stop()
 $elapsedTime = $stopwatch.Elapsed
 Write-Host "Completed the process to disable MSIX auto updates." -ForegroundColor Green
-
+#>
 #endregion
 #################################################################
 #region    Deploy VDOT Optimizations                            #
