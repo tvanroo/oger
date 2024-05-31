@@ -250,7 +250,7 @@ function IsAppInstalled {
         $AppName = "MSTeams"
     )
     $Appx = Get-AppxPackage -AllUsers | Where-Object {$PSItem. Name -eq $AppName}
-    $ProvApp = Get-ProvisionedAppPackage -Online | Where-Object {$PSItem. DisplayName -eq $AppName}
+    $ProvApp = Get-ProvisionedA ppPackage -Online | Where-Object {$PSItem. DisplayName -eq $AppName}
     if ($Appx) {
         Log "$AppName AppxPackage ($Appx) is currently installed for these users: $($Appx.PackageUserInformation.UserSecurityId.UserName)"
     }

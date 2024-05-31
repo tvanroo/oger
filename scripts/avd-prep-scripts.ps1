@@ -34,7 +34,7 @@
 #endregion                                                     ##
 #################################################################
 #################################################################
-#region    Deploy Teams via Bootstrapper  NEW                   # 
+<#region    Deploy Teams via Bootstrapper  NEW                   # 
 #################################################################
 $scriptUrl = "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Deploy%20Teams%20via%20Bootstrapper/Deploy%20New%20Teams%20Run%20Once.ps1"
 $scriptContent = Invoke-RestMethod -Uri $scriptUrl
@@ -50,9 +50,9 @@ Set-Content -Path $tempScriptPath -Value $scriptContent
 Remove-Item -Path $tempScriptPath -Force
 #################################################################
 #endregion                                                     ##
+#################################################################>
 #################################################################
-#################################################################
-#region    Disable Storage Sense                                #
+<#region    Disable Storage Sense                                #
 #################################################################
 $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 Write-Host "***Starting AVD AIB CUSTOMIZER PHASE: Disable Storage Sense Start -  $((Get-Date).ToUniversalTime()) "
@@ -92,7 +92,7 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable Storage Sense - Time ta
 
 #################################################################
 #endregion                                                     ##
-#################################################################
+#################################################################>
 
 #################################################################
 #region    Timezone redirection                                 #
@@ -181,7 +181,7 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Access to Azure File shares for
 #################################################################
 
 #################################################################
-#region    RDP Shortpath                                        #
+<#region    RDP Shortpath                                        #
 #################################################################
 # Reference: https://docs.microsoft.com/en-us/azure/virtual-desktop/shortpath
 
@@ -227,7 +227,7 @@ Write-Host "*** AVD AIB CUSTOMIZER PHASE: Configure RDP shortpath and Windows De
  
 #################################################################
 #endregion                                                     ##
-#################################################################
+#################################################################>
 <#
 #################################################################
 #region    Disable MSIX auto updates                            #
@@ -262,11 +262,10 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
 
 #################################################################
 #endregion                                                     ##
-#################################################################
-#>
+#################################################################>
 #################################################################
 #region    Deploy VDOT Optimizations                            #
-#################################################################
+<#################################################################
 
     # IMPORTANT: This script references scripts and config files in a different gitHub Repository: https://github.com/tvanroo/oger-vdot 
 
@@ -289,10 +288,10 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
     $scriptPath = Join-Path -Path $prepPath -ChildPath "oger-vdot-main\Windows_VDOT.ps1"
  
     # Execute the script with arguments
-    & $scriptPath -Optimizations <#AppxPackages, #>Autologgers, DefaultUserSettings, DiskCleanup, NetworkOptimizations, ScheduledTasks, Services <#-AdvancedOptimizations Edge#> -AcceptEULA
+    & $scriptPath -Optimizations <#AppxPackages, #> <#Autologgers, DefaultUserSettings, DiskCleanup, NetworkOptimizations, ScheduledTasks, Services#> <#-AdvancedOptimizations Edge#> <#-AcceptEULA#>
 #################################################################
 #endregion                                                     ##
-#################################################################
+#################################################################>
 
 ################################################################# 
 #region    Download Installer FSLogix - Install run later       #
@@ -334,7 +333,7 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
         Invoke-WebRequest -Uri $redistUrl -OutFile $redistPath
         Start-Process -FilePath $redistPath -ArgumentList "/quiet", "/norestart" -Wait
     }
-    Install-Redistributable -Architecture "x86"
+    #Install-Redistributable -Architecture "x86"
     Install-Redistributable -Architecture "x64"
 
 #################################################################
@@ -484,10 +483,10 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
 
 #################################################################
 #region    Install WebView2 Runtime                             #
-#################################################################
+<#################################################################
     Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile "$env:TEMP\MicrosoftEdgeWebview2Setup.exe"; Start-Process -FilePath "$env:TEMP\MicrosoftEdgeWebview2Setup.exe" -NoNewWindow -Wait
 #################################################################
-#endregion                                                     ##
+#endregion                                                     ##>
 #################################################################
 
 #################################################################
@@ -661,7 +660,7 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
 
 #################################################################
 #region    Stop Windows from installing new Appx automatically  #
-#################################################################
+<#################################################################
     # Define the registry values to be added
     $values = @(
         @{Name="ContentDeliveryAllowed"; Value=0}
@@ -744,7 +743,7 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
     Write-Host "Settings applied to all existing user profiles."
 
 #################################################################
-#endregion                                                     ##
+#endregion                                                     ##>
 #################################################################
 
 #################################################################
