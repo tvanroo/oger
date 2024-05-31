@@ -25,17 +25,21 @@
 #################################################################
 #region    Ensure the AVD preparation directory exists          #
 #################################################################
-    # -----------------------------------------------------
+Write-Host "Starting the process to ensure the AVD preparation directory exists..." -ForegroundColor Green
     $prepPath = "c:\install\avd-prep\"
     if (-not (Test-Path -Path $prepPath)) {
         New-Item -ItemType Directory -Path $prepPath -Force | Out-Null
     }
+    Write-Host "Completed the process to ensure the AVD preparation directory exists." -ForegroundColor Green
+
 #################################################################
 #endregion                                                     ##
 #################################################################
 #################################################################
-<#region    Deploy Teams via Bootstrapper  NEW                   # 
+<#region    Deploy Teams via Bootstrapper  NEW                  # 
 #################################################################
+Write-Host "Starting Deploy Teams via Bootstrapper  NEW" -ForegroundColor Green
+
 $scriptUrl = "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Deploy%20Teams%20via%20Bootstrapper/Deploy%20New%20Teams%20Run%20Once.ps1"
 $scriptContent = Invoke-RestMethod -Uri $scriptUrl
 
@@ -48,12 +52,15 @@ Set-Content -Path $tempScriptPath -Value $scriptContent
 
 # Remove the temporary script file
 Remove-Item -Path $tempScriptPath -Force
+Write-Host "Completed Deploy Teams via Bootstrapper  NEW" -ForegroundColor Green    
+
 #################################################################
 #endregion                                                     ##
 #################################################################>
 #################################################################
 <#region    Disable Storage Sense                                #
 #################################################################
+Write-Host "Starting Disable Storage Sense" -ForegroundColor Green
 $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 Write-Host "***Starting AVD AIB CUSTOMIZER PHASE: Disable Storage Sense Start -  $((Get-Date).ToUniversalTime()) "
 
@@ -86,9 +93,7 @@ Set-RegKey -registryPath $registryPathWin11 -registryKey $registryKey -registryV
 
 $stopwatch.Stop()
 $elapsedTime = $stopwatch.Elapsed
-Write-Host "*** AVD AIB CUSTOMIZER PHASE: Disable Storage Sense - Exit Code: $LASTEXITCODE ***"
-Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable Storage Sense - Time taken: $elapsedTime "
-
+Write-Host "Completed Disable Storage Sense" -ForegroundColor Green    
 
 #################################################################
 #endregion                                                     ##
@@ -97,6 +102,7 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable Storage Sense - Time ta
 #################################################################
 #region    Timezone redirection                                 #
 #################################################################
+Write-Host "Starting Timezone redirection" -ForegroundColor Green
 $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 Write-Host "*** AVD AIB CUSTOMIZER PHASE: Timezone redirection ***"
 
@@ -118,8 +124,7 @@ catch {
 
 $stopwatch.Stop()
 $elapsedTime = $stopwatch.Elapsed
-Write-Host "*** AVD AIB CUSTOMIZER PHASE: Timezone redirection -  Exit Code: $LASTEXITCODE ***"
-Write-Host "*** AVD AIB CUSTOMIZER PHASE: Timezone redirection - Time taken: $elapsedTime ***"
+Write-Host "Completed Timezone redirection" -ForegroundColor Green    
 
 #################################################################
 #endregion                                                     ##
@@ -128,6 +133,7 @@ Write-Host "*** AVD AIB CUSTOMIZER PHASE: Timezone redirection - Time taken: $el
 #################################################################
 #region    Access to Azure File shares for FSLogix profiles     #
 #################################################################
+Write-Host "Starting Access to Azure File shares for FSLogix profiles" -ForegroundColor Green
 $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 Write-Host "*** Starting AVD AIB CUSTOMIZER PHASE: Access to Azure File shares for FSLogix profiles  ***"
 
@@ -172,9 +178,7 @@ catch {
 
 $stopwatch.Stop()
 $elapsedTime = $stopwatch.Elapsed
-Write-Host "*** AVD AIB CUSTOMIZER PHASE : Access to Azure File shares for FSLogix profiles - Exit Code: $LASTEXITCODE ***"
-Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Access to Azure File shares for FSLogix profiles - Time taken: $elapsedTime "
-
+Write-Host "Completed Access to Azure File shares for FSLogix profiles" -ForegroundColor Green    
 
 #################################################################
 #endregion                                                     ##
@@ -183,6 +187,7 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Access to Azure File shares for
 #################################################################
 <#region    RDP Shortpath                                        #
 #################################################################
+Write-Host "Starting RDP Shortpath" -ForegroundColor Green
 # Reference: https://docs.microsoft.com/en-us/azure/virtual-desktop/shortpath
 
 $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
@@ -222,9 +227,8 @@ catch {
 
 $stopwatch.Stop()
 $elapsedTime = $stopwatch.Elapsed
-Write-Host "*** AVD AIB CUSTOMIZER PHASE : Configure RDP shortpath and Windows Defender Firewall  - Exit Code: $LASTEXITCODE ***"
-Write-Host "*** AVD AIB CUSTOMIZER PHASE: Configure RDP shortpath and Windows Defender Firewall - Time taken: $elapsedTime ***"
- 
+Write-Host "Completed RDP Shortpath" -ForegroundColor Green    
+
 #################################################################
 #endregion                                                     ##
 #################################################################>
@@ -232,6 +236,7 @@ Write-Host "*** AVD AIB CUSTOMIZER PHASE: Configure RDP shortpath and Windows De
 #################################################################
 #region    Disable MSIX auto updates                            #
 #################################################################
+Write-Host "Starting Disable MSIX auto updates" -ForegroundColor Green
 function Set-RegKey($registryPath, $registryKey, $registryValue) {
     try {
         IF(!(Test-Path $registryPath)) {
@@ -257,8 +262,7 @@ Disable-ScheduledTask -TaskPath "\Microsoft\Windows\WindowsUpdate\" -TaskName "S
 
 $stopwatch.Stop()
 $elapsedTime = $stopwatch.Elapsed
-Write-Host "*** AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX AA applications - Exit Code: $LASTEXITCODE ***"
-Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX AA applications - Time taken: $elapsedTime "
+Write-Host "Completed Disable MSIX auto updates" -ForegroundColor Green    
 
 #################################################################
 #endregion                                                     ##
@@ -266,6 +270,7 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
 #################################################################
 #region    Deploy VDOT Optimizations                            #
 <#################################################################
+Write-Host "Starting Deploy VDOT Optimizations" -ForegroundColor Green
 
     # IMPORTANT: This script references scripts and config files in a different gitHub Repository: https://github.com/tvanroo/oger-vdot 
 
@@ -289,6 +294,8 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
  
     # Execute the script with arguments
     & $scriptPath -Optimizations <#AppxPackages, #> <#Autologgers, DefaultUserSettings, DiskCleanup, NetworkOptimizations, ScheduledTasks, Services#> <#-AdvancedOptimizations Edge#> <#-AcceptEULA#>
+#Write-Host "Completed Deploy VDOT Optimizations" -ForegroundColor Green    
+
 #################################################################
 #endregion                                                     ##
 #################################################################>
@@ -296,7 +303,8 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
 ################################################################# 
 #region    Download Installer FSLogix - Install run later       #
 #################################################################
-    $fslogixExtractPath = "$prepPath\fslogix"
+Write-Host "Starting Download Installer FSLogix - Install run later" -ForegroundColor Green
+$fslogixExtractPath = "$prepPath\fslogix"
     if (-not (Test-Path -Path $fslogixExtractPath)) {
         New-Item -ItemType Directory -Path $fslogixExtractPath -Force | Out-Null
     }
@@ -308,6 +316,8 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
         Invoke-WebRequest -Uri "https://aka.ms/fslogix_download" -OutFile $fslogixZipPath
         Expand-Archive -LiteralPath $fslogixZipPath -DestinationPath $fslogixExtractPath -Force
     } -ArgumentList $prepPath, $fslogixExtractPath
+Write-Host "Completed Download Installer FSLogix - Install run later" -ForegroundColor Green    
+
 #################################################################
 #endregion                                                     ##
 #################################################################
@@ -315,7 +325,9 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
 #################################################################
 #region    Set Timezone to Eastern                              #
 #################################################################
-    Set-TimeZone -Id "Eastern Standard Time"
+Write-Host "Starting Set Timezone to Eastern" -ForegroundColor Green
+Set-TimeZone -Id "Eastern Standard Time"
+Write-Host "Completed Set Timezone to Eastern" -ForegroundColor Green    
 
 #################################################################
 #endregion                                                     ##
@@ -324,6 +336,8 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
 #################################################################
 #region    Install Visual C++ Redistributable                   #
 #################################################################
+Write-Host "Starting Install Visual C++ Redistributable" -ForegroundColor Green
+
     function Install-Redistributable {
         param (
             [string]$Architecture
@@ -335,6 +349,7 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
     }
     #Install-Redistributable -Architecture "x86"
     Install-Redistributable -Architecture "x64"
+Write-Host "Completed Install Visual C++ Redistributable" -ForegroundColor Green    
 
 #################################################################
 #endregion                                                     ##
@@ -343,6 +358,8 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
 #################################################################
 #region    Enable AVD Teams Optimization                        #
 #################################################################
+Write-Host "Starting Enable AVD Teams Optimization" -ForegroundColor Green
+
     # -----------------------------------------------------
     $registryPath = "HKLM:\SOFTWARE\Microsoft\Teams"
     $valueName = "IsWVDEnvironment"
@@ -354,8 +371,7 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
     # Set the desired DWORD value
     New-ItemProperty -Path $registryPath -Name $valueName -PropertyType DWORD -Value $desiredValue -Force | Out-Null
     
-    Write-Host "IsWVDEnvironment registry setting applied successfully."
-    
+Write-Host "Completed Enable AVD Teams Optimization" -ForegroundColor Green    
 #################################################################
 #endregion                                                     ##
 #################################################################
@@ -363,6 +379,8 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
 #################################################################
 #region    Install/update WebRTC for AVD                        #
 #################################################################
+Write-Host "Starting Install/update WebRTC for AVD" -ForegroundColor Green
+
     $msiPath = Join-Path -Path $prepPath -ChildPath "msrdcwebrtcsvc.msi"
     $uri = "https://aka.ms/msrdcwebrtcsvc/msi"
     $retryCount = 3
@@ -405,8 +423,8 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
     else {
         Write-Host "Failed to download the MSI file after $retryCount attempts."
     }
-    
 
+Write-Host "Completed Install/update WebRTC for AVD" -ForegroundColor Green
 #################################################################
 #endregion                                                     ##
 #################################################################
@@ -414,7 +432,10 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
 #################################################################
 #region    Execute the function to enable Hyper-V               #
 #################################################################
+Write-Host "Starting Execute the function to enable Hyper-V" -ForegroundColor Green
+
     Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All -NoRestart
+Write-Host "Completed Execute the function to enable Hyper-V" -ForegroundColor Green
 
 #################################################################
 #endregion                                                     ##
@@ -423,6 +444,8 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
 #################################################################
 #region    Installing Microsoft 365                             #
 #################################################################
+Write-Host "Starting Installing Microsoft 365" -ForegroundColor Green
+
     $odtFolder = Join-Path -Path $prepPath -ChildPath "ODT"
     if (-not (Test-Path -Path $odtFolder)) {
         New-Item -ItemType Directory -Path $odtFolder | Out-Null
@@ -444,6 +467,7 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
 
     # Use the extracted 'setup.exe' for the Office installation/configuration
     Start-Process -FilePath $setupPath -ArgumentList "/configure `"$xmlFilePath`"" -NoNewWindow -Wait
+Write-Host "Completed Installing Microsoft 365" -ForegroundColor Green
 
 #################################################################
 #endregion                                                     ##
@@ -451,8 +475,10 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
 
 #################################################################
 #region    Deploy Teams via Bootstrapper  OLD                     # 
-#################################################################
-<#     # Define the download URL and target directory
+<#################################################################
+Write-Host "Starting Deploy Teams via Bootstrapper  OLD" -ForegroundColor Green
+
+     # Define the download URL and target directory
     $url = "https://go.microsoft.com/fwlink/?linkid=2243204&clcid=0x409"
     $targetDir = "c:\install\installers"
     $fileName = "teamsbootstrapper.exe"
@@ -472,19 +498,19 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
 
     # Execute the downloaded file with the '-p' parameter, suppressing the command prompt window
     Start-Process -FilePath $filePath -ArgumentList "-p" -WindowStyle Hidden -Wait
-
-    Write-Host "Execution completed."
-    #>
+    
+    Write-Host "Completed Deploy Teams via Bootstrapper  OLD" -ForegroundColor Green
 #################################################################
 #endregion                                                     ##
-#################################################################
-
-
+#################################################################>
 
 #################################################################
 #region    Install WebView2 Runtime                             #
-<#################################################################
+#################################################################
+Write-Host "Starting Install WebView2 Runtime" -ForegroundColor Green
+
     Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile "$env:TEMP\MicrosoftEdgeWebview2Setup.exe"; Start-Process -FilePath "$env:TEMP\MicrosoftEdgeWebview2Setup.exe" -NoNewWindow -Wait
+Write-Host "Completed Install WebView2 Runtime" -ForegroundColor Green
 #################################################################
 #endregion                                                     ##>
 #################################################################
@@ -492,6 +518,8 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
 #################################################################
 #region    Install/Update FSLogix                               #
 #################################################################
+Write-Host "Starting Install/Update FSLogix" -ForegroundColor Green
+
     # Wait for the background job to complete before starting FSLogix installation
     Wait-Job -Job $job
     Receive-Job -Job $job
@@ -503,6 +531,8 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
     } else {
         Write-Host "FSLogixAppsSetup.exe was not found after extraction."
     }
+    Write-Host "Completed Install/Update FSLogix" -ForegroundColor Green
+
 #################################################################
 #endregion                                                     ##
 #################################################################
@@ -510,6 +540,8 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
 #################################################################
 #region    Taskbar Optimization                                 #
 #################################################################
+Write-Host "Starting Taskbar Optimization" -ForegroundColor Green
+
     $prepPath = "c:\install\avd-prep\"
     if (-not (Test-Path -Path $prepPath)) {
         New-Item -ItemType Directory -Path $prepPath -Force | Out-Null
@@ -596,7 +628,7 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
         }
     }
     
-    Write-Host "Settings applied to all existing user profiles."
+    Write-Host "Completed Taskbar Optimization" -ForegroundColor Green
     
     # Stop logging
     Stop-Transcript
@@ -608,6 +640,8 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
 #################################################################
 #region    Enforce TLS 1.2and higher                            #
 #################################################################
+Write-Host "Starting Enforce TLS 1.2and higher" -ForegroundColor Green
+
     # TLS 1.0 Server and Client Configuration
     $tls10Paths = @(
         'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Server',
@@ -653,7 +687,7 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
         }
     }
 
-    Write-Host "TLS configuration and .NET Framework updates are complete."
+    Write-Host "Completed Enforce TLS 1.2and higher" -ForegroundColor Green
 #################################################################
 #endregion                                                     ##
 #################################################################
@@ -661,6 +695,8 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
 #################################################################
 #region    Stop Windows from installing new Appx automatically  #
 <#################################################################
+Write-Host "Starting Stop Windows from installing new Appx automatically" -ForegroundColor Green
+
     # Define the registry values to be added
     $values = @(
         @{Name="ContentDeliveryAllowed"; Value=0}
@@ -742,15 +778,19 @@ Write-Host "*** Ending AVD AIB CUSTOMIZER PHASE: Disable auto updates for MSIX A
 
     Write-Host "Settings applied to all existing user profiles."
 
+Write-Host "Completed Stop Windows from installing new Appx automatically" -ForegroundColor Green
 #################################################################
 #endregion                                                     ##>
 #################################################################
 
 #################################################################
 #region    UWP Remove Appx Bloat Apps                           #
-#################################################################
-iex (irm https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Remove%20UWP%20Bloat/UWP%20Remove%20Appx%20All%20Users%20by%20System%20Context%2005-22-24.ps1)
+<#################################################################
+Write-Host "Starting UWP Remove Appx Bloat Apps" -ForegroundColor Green
 
-#################################################################
+iex (irm https://raw.githubusercontent.com/tvanroo/oger/main/scripts/Remove%20UWP%20Bloat/UWP%20Remove%20Appx%20All%20Users%20by%20System%20Context%2005-22-24.ps1)
+Write-Host "Completed UWP Remove Appx Bloat Apps" -ForegroundColor Green
+
+#################################################################>
 #endregion                                                     ##
 #################################################################
