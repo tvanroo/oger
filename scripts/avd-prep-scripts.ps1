@@ -27,7 +27,7 @@
 
 # Major Section: Deploy VDOT Optimizations 
     # IMPORTANT: This script references scripts and config files in a different gitHub Repository: https://github.com/tvanroo/oger-vdot 
-    # -----------------------------------------------------
+<#
     $prepPath = "c:\install\avd-prep\"
 
     # Define the URL of the ZIP file
@@ -50,7 +50,7 @@
  
     # Execute the script with arguments
     & $scriptPath -Optimizations AppxPackages, Autologgers, DefaultUserSettings, DiskCleanup, NetworkOptimizations, ScheduledTasks, Services -AdvancedOptimizations Edge -AcceptEULA
- 
+ #>
 # Major Section: Download Installer FSLogix - Install run later
     # -----------------------------------------------------
     # Ensure the AVD preparation directory exists
@@ -87,7 +87,7 @@
         Invoke-WebRequest -Uri $redistUrl -OutFile $redistPath
         Start-Process -FilePath $redistPath -ArgumentList "/quiet", "/norestart" -Wait
     }
-    Install-Redistributable -Architecture "x86"
+   # Install-Redistributable -Architecture "x86"
     Install-Redistributable -Architecture "x64"
 
 
@@ -177,7 +177,7 @@
     Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile "$env:TEMP\MicrosoftEdgeWebview2Setup.exe"; Start-Process -FilePath "$env:TEMP\MicrosoftEdgeWebview2Setup.exe" -NoNewWindow -Wait
 
 # Major Section: Install/Update FSLogix 
-     # -----------------------------------------------------
+    <#
     # Wait for the background job to complete before starting FSLogix installation
     Wait-Job -Job $job
     Receive-Job -Job $job
@@ -189,7 +189,7 @@
     } else {
         Write-Host "FSLogixAppsSetup.exe was not found after extraction."
     }
-
+#>
  # Major Section: Taskbar Optimization  
     # Start logging
     Start-Transcript -Path $prepPath\CustomizeTaskbar_ps1.txt -Append
