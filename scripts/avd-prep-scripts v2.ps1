@@ -100,7 +100,7 @@ function Install-Redistributable {
 }
 
 # Uncomment the following line to install the x86 version
-# Install-Redistributable -Architecture "x86"
+Install-Redistributable -Architecture "x86"
 Install-Redistributable -Architecture "x64"
 
 Write-Host "Completed the process to install Visual C++ Redistributable." -ForegroundColor Green
