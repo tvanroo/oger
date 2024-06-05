@@ -4,7 +4,6 @@
       <Language ID="en-us" />
       <ExcludeApp ID="Groove" />
       <ExcludeApp ID="Lync" />
-      <ExcludeApp ID="Teams" />
     </Product>
   </Add>
   <Property Name="SharedComputerLicensing" Value="0" />
