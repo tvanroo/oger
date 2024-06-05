@@ -1,3 +1,4 @@
+$prepPath = "c:\install\avd-prep\"
 Write-Host "Starting the process to download and install OneDrive for all users..." -ForegroundColor Green
 
 # Define the OneDrive installer URL and target path
