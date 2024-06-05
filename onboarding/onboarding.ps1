@@ -1,3 +1,5 @@
+#################################################################
+#Ensure the AVD preparation directory exists
 Write-Host "Starting the process to ensure the AVD preparation directory exists..." -ForegroundColor Green
 
 $prepPath = "c:\install\avd-prep\"
@@ -16,10 +18,6 @@ $logFilePath = Join-Path -Path $prepPath -ChildPath "avd-prep-script-$timestamp.
 # Start logging
 Start-Transcript -Path $logFilePath -Append
 Write-Host "Completed the process to ensure the AVD preparation directory exists." -ForegroundColor Green
-
-
-#################################################################
-#Ensure the AVD preparation directory exists
 
 #################################################################
 #Installing Microsoft 365
