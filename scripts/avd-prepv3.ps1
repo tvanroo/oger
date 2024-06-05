@@ -1,18 +1,16 @@
-# Tasks Executed:
-#    Ensure the AVD preparation directory exists          #
-#    Configure Timezone Settings                          #
-#    Install Visual C++ Redistributable                   #
-#    Install/update WebRTC for AVD                        #
-#    Install WebView2 Runtime                             #
-#    Enable AVD Teams Optimization                        #
-#    Install Teams in per-machine mode                    #
-#    Download and Install OneDrive for All Users          #
-#    Taskbar Optimization                                 #
-#    Execute the function to enable Hyper-V               #
-#    Installing Microsoft 365                             #
-#    Enforce TLS 1.2and higher                            #
 
+# Define the preparation path at the beginning of the script
+$prepPath = "c:\install\avd-prep\"
+if (-not (Test-Path -Path $prepPath)) {
+    New-Item -ItemType Directory -Path $prepPath -Force | Out-Null
+}
 
+# Define the log file name with the current timestamp
+$timestamp = (Get-Date).ToString("yyyy-MM-dd-HH-mm-ss")
+$logFilePath = Join-Path -Path $prepPath -ChildPath "fslogix-setup-$timestamp.log"
+
+# Start logging
+Start-Transcript -Path $logFilePath -Append
 
 #################################################################
 #region    Ensure the AVD preparation directory exists          #
@@ -40,72 +38,261 @@ Write-Host "Completed the process to ensure the AVD preparation directory exists
 #endregion
 
 #################################################################
-#region    Configure Timezone Settings                          #
+#region    Installing Microsoft 365                             #
+#################################################################
+#$prepPath = "c:\install\avd-prep\"
+
+Write-Host "Starting the process to install Microsoft 365..." -ForegroundColor Green
+
+$odtFolder = Join-Path -Path $prepPath -ChildPath "ODT"
+Write-Host "Checking if the ODT folder exists..."
+if (-not (Test-Path -Path $odtFolder)) {
+    New-Item -ItemType Directory -Path $odtFolder | Out-Null
+    Write-Host "Created the ODT folder."
+} else {
+    Write-Host "ODT folder already exists."
+}
+
+Write-Host "Downloading the Office Deployment Tool executable..."
+# Download the ODT setup executable
+$odtExePath = Join-Path -Path $odtFolder -ChildPath "officedeploymenttool_17328-20162.exe"
+Invoke-WebRequest -Uri "https://download.microsoft.com/download/2/7/A/27AF1BE6-DD20-4CB4-B154-EBAB8A7D4A7E/officedeploymenttool_17328-20162.exe" -OutFile $odtExePath
+
+Write-Host "Extracting the Office Deployment Tool contents..."
+# Extract the ODT contents
+Start-Process -FilePath $odtExePath -ArgumentList "/quiet /extract:`"$odtFolder`""  -Wait
+
+# Assuming the ODT contents, including 'setup.exe', are extracted directly into $odtFolder
+$setupPath = Join-Path -Path $odtFolder -ChildPath "setup.exe"
+
+Write-Host "Downloading the XML configuration file..."
+# Download the XML configuration file
+$xmlFilePath = Join-Path -Path $odtFolder -ChildPath "OGE_Configuration.xml"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/install/OGE_Configuration.xml" -OutFile $xmlFilePath
+
+Write-Host "Running the Office setup with the configuration file..."
+# Use the extracted 'setup.exe' for the Office installation/configuration
+Start-Process -FilePath $setupPath -ArgumentList "/configure `"$xmlFilePath`""  -Wait
+
+Write-Host "Completed the process to install Microsoft 365." -ForegroundColor Green
+
+#endregion
+
+#################################################################
+#region    Install Teams                   #
+#################################################################
+#$prepPath = "c:\install\avd-prep\"
+
+Write-Host "Starting the process to install Teams ..." -ForegroundColor Green
+ # Define the download URL and target directory
+ $url = "https://go.microsoft.com/fwlink/?linkid=2243204&clcid=0x409"
+ $targetDir = "c:\install\installers"
+ $fileName = "teamsbootstrapper.exe"
+
+ # Ensure the target directory exists
+ if (-not (Test-Path -Path $targetDir)) {
+     New-Item -ItemType Directory -Path $targetDir -Force
+ }
+
+ # Construct the full file path
+ $filePath = Join-Path -Path $targetDir -ChildPath $fileName
+
+Write-Host "Downloading the Teams installer..."
+Invoke-WebRequest -Uri $url -OutFile $filePath
+
+Write-Host "Download completed: $filePath"
+
+Write-Host "Installing Teams..."
+Start-Process -FilePath $filePath -ArgumentList "-p" -WindowStyle Hidden -Wait
+
+Write-Host "Completed the process to install Teams." -ForegroundColor Green
+
+#endregion
+
+ 
+#################################################################
+#region    Remove Appx Packages                   #
 #################################################################
 
-Write-Host "Starting the process to configure Timezone settings..." -ForegroundColor Green
+ <# Define the list of package names #>
+$PackageNames = @(
+    "Microsoft.Ink.Handwriting.en-US.1.0",
+    "Microsoft.Ink.Handwriting.Main.en-US.1.0.1",
+    "Microsoft.GamingApp",
+    "Microsoft.MicrosoftOfficeHub",
+    "Microsoft.OutlookForWindows",
+    "Microsoft.SkypeApp",
+    "microsoft.windowscommunicationsapps",
+    "Microsoft.Xbox.TCUI",
+    "Microsoft.XboxGameOverlay",
+    "Microsoft.XboxGamingOverlay",
+    "Microsoft.XboxIdentityProvider",
+    "Microsoft.XboxSpeechToTextOverlay",
+    "Microsoft.XboxApp",
+    "Microsoft.MixedReality.Portal",
+    "Microsoft.Wallet",
+    "Microsoft.Windows.Ai.Copilot.Provider"
+)
+
+foreach ($PackageName in $PackageNames) {
+    Write-Host "`nProcessing package: $PackageName" -ForegroundColor Cyan
+
+    <# Check if the package is installed for all users #>
+    Write-Host "`nChecking if $PackageName is installed for all users..." -ForegroundColor Green
+    $allUsersPackages = Get-AppxPackage -AllUsers | Where-Object { $_.Name -eq $PackageName }
+    $allUsersFound = $allUsersPackages -ne $null
+
+    <# Check if the package is installed for the current user #>
+    Write-Host "`nChecking if $PackageName is installed for the current user..." -ForegroundColor Green
+    $currentUserPackage = Get-AppxPackage | Where-Object { $_.Name -eq $PackageName }
+    $currentUserFound = $currentUserPackage -ne $null
+
+    <# Report the results #>
+    if ($allUsersFound) {
+        Write-Host "$PackageName is installed for all users." -ForegroundColor Yellow
+    } else {
+        Write-Host "$PackageName is not installed for all users." -ForegroundColor Red
+    }
+
+    if ($currentUserFound) {
+        Write-Host "$PackageName is installed for the current user." -ForegroundColor Yellow
+    } else {
+        Write-Host "$PackageName is not installed for the current user." -ForegroundColor Red
+    }
+
+    <# If the package is found for either all users or the current user, prompt for removal #>
+    if ($allUsersFound -or $currentUserFound) {
+        $confirmation = Read-Host "Do you want to remove $PackageName for all users and the current user? (Y/N)"
+        
+        if ($confirmation -eq 'Y' -or $confirmation -eq 'y') {
+            Write-Host "`nRemoving $PackageName for all users and the current user..." -ForegroundColor Green
+            
+            if ($allUsersFound) {
+                $allUsersPackages | ForEach-Object { 
+                    try {
+                        Remove-AppxPackage -Package $_.PackageFullName -AllUsers
+                    } catch {
+                        Write-Host "Error removing package for all users: $_" -ForegroundColor Red
+                    }
+                }
+            }
+            
+            if ($currentUserFound) {
+                $currentUserPackage | ForEach-Object { 
+                    if ($allUsersPackages -notcontains $_) {
+                        try {
+                            Remove-AppxPackage -Package $_.PackageFullName
+                        } catch {
+                            Write-Host "Error removing package for the current user: $_" -ForegroundColor Red
+                        }
+                    }
+                }
+            }
+
+            Write-Host "$PackageName has been removed for all users and the current user." -ForegroundColor Green
+        } else {
+            Write-Host "Removal of $PackageName cancelled." -ForegroundColor Yellow
+        }
+    }
+}
+#endregion
+
+
+#################################################################
+#region    Access to Azure File shares for FSLogix profiles     #
+#################################################################
+
+Write-Host "Starting the process to configure access to Azure File shares for FSLogix profiles..." -ForegroundColor Green
 $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
-# Enable Timezone Redirection
-$registryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"
-$registryKey = "fEnableTimeZoneRedirection"
+# Enable Azure AD Kerberos
+Write-Host "Enabling Azure AD Kerberos..."
+$registryPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\Kerberos\Parameters"
+$registryKey = "CloudKerberosTicketRetrievalEnabled"
 $registryValue = "1"
 
-Write-Host "Checking if the registry path exists for Timezone Redirection..."
+Write-Host "Checking if the registry path exists for Azure AD Kerberos..."
 IF(!(Test-Path $registryPath)) {
     New-Item -Path $registryPath -Force | Out-Null
-    Write-Host "Created the registry path for Timezone Redirection."
+    Write-Host "Created the registry path for Azure AD Kerberos."
 } else {
-    Write-Host "Registry path for Timezone Redirection already exists."
+    Write-Host "Registry path for Azure AD Kerberos already exists."
 }
 
-Write-Host "Setting the registry key for Timezone Redirection..."
+Write-Host "Setting the registry key for Azure AD Kerberos..."
 try {
     New-ItemProperty -Path $registryPath -Name $registryKey -Value $registryValue -PropertyType DWORD -Force | Out-Null
-    Write-Host "Registry key for Timezone Redirection set successfully."
+    Write-Host "Registry key for Azure AD Kerberos set successfully."
 }
 catch {
-    Write-Host "Failed to set the registry key for Timezone Redirection: [$($_.Exception.Message)]"
+    Write-Host "Failed to set the registry key for Azure AD Kerberos: [$($_.Exception.Message)]"
 }
 
-# Set Timezone to Eastern
-Write-Host "Setting the timezone to Eastern Standard Time..."
-Set-TimeZone -Id "Eastern Standard Time"
+# Create new reg key "LoadCredKey"
+Write-Host "Creating new registry key LoadCredKey..."
+$LoadCredRegPath = "HKLM:\Software\Policies\Microsoft\AzureADAccount"
+$LoadCredName = "LoadCredKeyFromProfile"
+$LoadCredValue = "1"
+
+Write-Host "Checking if the registry path exists for LoadCredKey..."
+IF(!(Test-Path $LoadCredRegPath)) {
+    New-Item -Path $LoadCredRegPath -Force | Out-Null
+    Write-Host "Created the registry path for LoadCredKey."
+} else {
+    Write-Host "Registry path for LoadCredKey already exists."
+}
+
+Write-Host "Setting the registry key for LoadCredKey..."
+try {
+    New-ItemProperty -Path $LoadCredRegPath -Name $LoadCredName -Value $LoadCredValue -PropertyType DWORD -Force | Out-Null
+    Write-Host "Registry key for LoadCredKey set successfully."
+}
+catch {
+    Write-Host "Failed to set the registry key for LoadCredKey: [$($_.Exception.Message)]"
+}
 
 $stopwatch.Stop()
 $elapsedTime = $stopwatch.Elapsed
-Write-Host "Completed the process to configure Timezone settings." -ForegroundColor Green
+Write-Host "Completed the process to configure access to Azure File shares for FSLogix profiles." -ForegroundColor Green
 
 #endregion
 
 #################################################################
-#region    Install Visual C++ Redistributable                   #
+#region    Download and Install FSLogix                         #
 #################################################################
 
-Write-Host "Starting the process to install Visual C++ Redistributable..." -ForegroundColor Green
+Write-Host "Starting the process to download and install FSLogix..." -ForegroundColor Green
 
-function Install-Redistributable {
-    param (
-        [string]$Architecture
-    )
-    $redistUrl = "https://aka.ms/vs/17/release/vc_redist.$Architecture.exe"
-    $redistPath = Join-Path -Path $prepPath -ChildPath "vc_redist.$Architecture.exe"
-
-    Write-Host "Downloading Visual C++ Redistributable for $Architecture..."
-    Invoke-WebRequest -Uri $redistUrl -OutFile $redistPath
-
-    Write-Host "Installing Visual C++ Redistributable for $Architecture..."
-    Start-Process -FilePath $redistPath -ArgumentList "/quiet", "/norestart" -Wait
-    Write-Host "Visual C++ Redistributable for $Architecture installed successfully."
+$fslogixExtractPath = "$prepPath\fslogix"
+Write-Host "Checking if the FSLogix extraction path exists..."
+if (-not (Test-Path -Path $fslogixExtractPath)) {
+    New-Item -ItemType Directory -Path $fslogixExtractPath -Force | Out-Null
+    Write-Host "Created the FSLogix extraction path."
+} else {
+    Write-Host "FSLogix extraction path already exists."
 }
 
-# Uncomment the following line to install the x86 version
-# Install-Redistributable -Architecture "x86"
-Install-Redistributable -Architecture "x64"
+Write-Host "Starting the download and extraction of the FSLogix installer..."
+# Download and extract FSLogix
+$fslogixZipPath = "$prepPath\fslogix.zip"
+Invoke-WebRequest -Uri "https://aka.ms/fslogix_download" -OutFile $fslogixZipPath
+Expand-Archive -LiteralPath $fslogixZipPath -DestinationPath $fslogixExtractPath -Force
+Remove-Item -Path $fslogixZipPath
 
-Write-Host "Completed the process to install Visual C++ Redistributable." -ForegroundColor Green
+$fsLogixExePath = "$fslogixExtractPath\x64\Release\FSLogixAppsSetup.exe"
+if (Test-Path -Path $fsLogixExePath) {
+    Write-Host "Found FSLogixAppsSetup.exe, starting installation..."
+    Start-Process -FilePath $fsLogixExePath -Wait -ArgumentList "/install", "/quiet", "/norestart"
+    Write-Host "FSLogix has been installed/updated successfully."
+} else {
+    Write-Host "FSLogixAppsSetup.exe was not found after extraction."
+}
+
+Write-Host "Completed the process to download and install FSLogix." -ForegroundColor Green
 
 #endregion
+
+
 
 #################################################################
 #region    Install/update WebRTC for AVD                        #
@@ -163,22 +350,6 @@ Write-Host "Completed the process to install/update WebRTC for AVD." -Foreground
 #endregion
 
 #################################################################
-#region    Install WebView2 Runtime                             #
-#################################################################
-
-Write-Host "Starting the process to install WebView2 Runtime..." -ForegroundColor Green
-
-Write-Host "Downloading the WebView2 Runtime installer..."
-Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile "$env:TEMP\MicrosoftEdgeWebview2Setup.exe"
-
-Write-Host "Installing WebView2 Runtime..."
-Start-Process -FilePath "$env:TEMP\MicrosoftEdgeWebview2Setup.exe" -NoNewWindow -Wait
-
-Write-Host "Completed the process to install WebView2 Runtime." -ForegroundColor Green
-
-#endregion
-
-#################################################################
 #region    Enable AVD Teams Optimization                        #
 #################################################################
 
@@ -203,58 +374,13 @@ Write-Host "Completed the process to enable AVD Teams Optimization." -Foreground
 #endregion
 
 #################################################################
-#region    Install Teams                   #
+#region    Configure Timezone Settings                          #
 #################################################################
-#$prepPath = "c:\install\avd-prep\"
-
-Write-Host "Starting the process to install Teams ..." -ForegroundColor Green
- # Define the download URL and target directory
- $url = "https://go.microsoft.com/fwlink/?linkid=2243204&clcid=0x409"
- $targetDir = "c:\install\installers"
- $fileName = "teamsbootstrapper.exe"
-
- # Ensure the target directory exists
- if (-not (Test-Path -Path $targetDir)) {
-     New-Item -ItemType Directory -Path $targetDir -Force
- }
-
- # Construct the full file path
- $filePath = Join-Path -Path $targetDir -ChildPath $fileName
-
-Write-Host "Downloading the Teams installer..."
-Invoke-WebRequest -Uri $url -OutFile $filePath
-
-Write-Host "Download completed: $filePath"
-
-Write-Host "Installing Teams..."
-Start-Process -FilePath $filePath -ArgumentList "-p" -WindowStyle Hidden -Wait
-
-Write-Host "Completed the process to install Teams." -ForegroundColor Green
-
+    Set-TimeZone -Id "Eastern Standard Time"
 #endregion
 
-#################################################################
-#region    Download and Install OneDrive for All Users          #
-#################################################################
 
-Write-Host "Starting the process to download and install OneDrive for all users..." -ForegroundColor Green
-
-# Define the OneDrive installer URL and target path
-$oneDriveUrl = "https://go.microsoft.com/fwlink/?linkid=844652"
-$oneDriveExePath = Join-Path -Path $prepPath -ChildPath "OneDriveSetup.exe"
-
-Write-Host "Downloading the OneDrive installer..."
-# Download the OneDrive installer
-Invoke-WebRequest -Uri $oneDriveUrl -OutFile $oneDriveExePath
-
-Write-Host "Installing OneDrive for all users..."
-# Run the OneDrive installer with /allusers parameter
-Start-Process -FilePath $oneDriveExePath -ArgumentList "/allusers" -Wait
-
-Write-Host "Completed the process to download and install OneDrive for all users." -ForegroundColor Green
-
-#endregion
-#################################################################
+    #################################################################
 #region    Taskbar Optimization                                 #
 #################################################################
 #$prepPath = "c:\install\avd-prep\"
@@ -360,47 +486,6 @@ Write-Host "Completed the process to enable Hyper-V." -ForegroundColor Green
 #endregion
 
 #################################################################
-#region    Installing Microsoft 365                             #
-#################################################################
-#$prepPath = "c:\install\avd-prep\"
-
-Write-Host "Starting the process to install Microsoft 365..." -ForegroundColor Green
-
-$odtFolder = Join-Path -Path $prepPath -ChildPath "ODT"
-Write-Host "Checking if the ODT folder exists..."
-if (-not (Test-Path -Path $odtFolder)) {
-    New-Item -ItemType Directory -Path $odtFolder | Out-Null
-    Write-Host "Created the ODT folder."
-} else {
-    Write-Host "ODT folder already exists."
-}
-
-Write-Host "Downloading the Office Deployment Tool executable..."
-# Download the ODT setup executable
-$odtExePath = Join-Path -Path $odtFolder -ChildPath "officedeploymenttool_17328-20162.exe"
-Invoke-WebRequest -Uri "https://download.microsoft.com/download/2/7/A/27AF1BE6-DD20-4CB4-B154-EBAB8A7D4A7E/officedeploymenttool_17328-20162.exe" -OutFile $odtExePath
-
-Write-Host "Extracting the Office Deployment Tool contents..."
-# Extract the ODT contents
-Start-Process -FilePath $odtExePath -ArgumentList "/quiet /extract:`"$odtFolder`"" -NoNewWindow -Wait
-
-# Assuming the ODT contents, including 'setup.exe', are extracted directly into $odtFolder
-$setupPath = Join-Path -Path $odtFolder -ChildPath "setup.exe"
-
-Write-Host "Downloading the XML configuration file..."
-# Download the XML configuration file
-$xmlFilePath = Join-Path -Path $odtFolder -ChildPath "OGE_Configuration.xml"
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/tvanroo/oger/main/scripts/install/OGE_Configuration.xml" -OutFile $xmlFilePath
-
-Write-Host "Running the Office setup with the configuration file..."
-# Use the extracted 'setup.exe' for the Office installation/configuration
-Start-Process -FilePath $setupPath -ArgumentList "/configure `"$xmlFilePath`"" -NoNewWindow -Wait
-
-Write-Host "Completed the process to install Microsoft 365." -ForegroundColor Green
-
-#endregion
-
-#################################################################
 #region    Enforce TLS 1.2 and higher                           #
 #################################################################
 #$prepPath = "c:\install\avd-prep\"
@@ -461,6 +546,4 @@ Write-Host "Completed the process to enforce TLS 1.2 and higher." -ForegroundCol
 
 #endregion
 
-#################################################################
-# End logging
 Stop-Transcript
