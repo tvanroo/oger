@@ -1,22 +1,14 @@
-Write-Host "Starting the process to uninstall Teams ..." -ForegroundColor Green
+Write-Host "Starting the process to remove Microsoft Teams Appx package for all users..." -ForegroundColor Green
 
-# Define the uninstall command and target directory
-$targetDir = "c:\install\installers"
-$fileName = "teamsbootstrapper.exe"
-$uninstallCommand = "C:\Program Files (x86)\Teams Installer\Teams.exe"
+# Get the package full name of Microsoft Teams
+$teamsPackage = Get-AppxPackage -AllUsers -Name "MSTeams"
 
-# Ensure the target directory exists
-if (-not (Test-Path -Path $targetDir)) {
-    New-Item -ItemType Directory -Path $targetDir -Force
+if ($teamsPackage) {
+    # Remove the package for all users
+    Remove-AppxPackage -Package $teamsPackage.PackageFullName -AllUsers
+    Write-Host "Microsoft Teams Appx package removed for all users." -ForegroundColor Green
+} else {
+    Write-Host "Microsoft Teams Appx package is not found." -ForegroundColor Red
 }
 
-if ($null -eq (Get-AppxPackage -Name MSTeams)) {
-
-	Write-Host "New Teams client not found" -ForegroundColor Blue
-
-} Else {
-
-	Write-Host "Uninstalling Teams..."
-    Start-Process -FilePath $uninstallCommand -ArgumentList "--uninstall -s" -Wait
-    Write-Host "Teams uninstalled successfully." -ForegroundColor Green
-}
+Write-Host "Completed the process to remove Microsoft Teams Appx package for all users." -ForegroundColor Green
