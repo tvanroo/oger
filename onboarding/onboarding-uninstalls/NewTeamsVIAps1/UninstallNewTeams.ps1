@@ -10,16 +10,13 @@ if (-not (Test-Path -Path $targetDir)) {
     New-Item -ItemType Directory -Path $targetDir -Force
 }
 
-# Construct the full file path
-$filePath = Join-Path -Path $targetDir -ChildPath $fileName
+if ($null -eq (Get-AppxPackage -Name MSTeams)) {
 
-Write-Host "Checking if Teams is installed..."
-if (Test-Path -Path $uninstallCommand) {
-    Write-Host "Uninstalling Teams..."
+	Write-Host "New Teams client not found" -ForegroundColor Red
+
+} Else {
+
+	Write-Host "Uninstalling Teams..."
     Start-Process -FilePath $uninstallCommand -ArgumentList "--uninstall -s" -Wait
     Write-Host "Teams uninstalled successfully." -ForegroundColor Green
-} else {
-    Write-Host "Teams is not installed." -ForegroundColor Red
 }
-
-Write-Host "Completed the process to uninstall Teams." -ForegroundColor Green
