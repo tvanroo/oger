@@ -1,0 +1,8 @@
+<Configuration ID="dd9b7a4c-835a-4d96-9fd0-9a18018d493f">
+  <Remove All="TRUE">
+    <Product ID="O365ProPlusRetail">
+      <Language ID="en-us" />
+    </Product>
+  </Remove>
+  <Display Level="None" AcceptEULA="TRUE" />
+</Configuration>
