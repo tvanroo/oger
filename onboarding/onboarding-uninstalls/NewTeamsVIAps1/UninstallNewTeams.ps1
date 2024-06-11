@@ -12,7 +12,7 @@ if (-not (Test-Path -Path $targetDir)) {
 
 if ($null -eq (Get-AppxPackage -Name MSTeams)) {
 
-	Write-Host "New Teams client not found" -ForegroundColor Red
+	Write-Host "New Teams client not found" -ForegroundColor Blue
 
 } Else {
 
