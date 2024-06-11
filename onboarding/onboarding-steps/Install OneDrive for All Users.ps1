@@ -21,6 +21,6 @@ Invoke-WebRequest -Uri $oneDriveUrl -OutFile $oneDriveExePath -ErrorAction Stop
 
 Write-Host "Installing OneDrive for all users..."
 # Run the OneDrive installer with /allusers parameter silently
-Start-Process -FilePath $oneDriveExePath -ArgumentList "/allusers /silent" -WindowStyle Hidden -Wait
+Start-Process -FilePath $oneDriveExePath -ArgumentList "/allusers" -WindowStyle Hidden -Wait
 
 Write-Host "Completed the process to download and install OneDrive for all users." -ForegroundColor Green
