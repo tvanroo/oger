@@ -1,19 +1,16 @@
-# Detection Script for Hyper-V
+Write-Host "Starting the detection process for Microsoft-Hyper-V feature..." -ForegroundColor Green
 
-# Function to check Hyper-V status
-function Check-HyperVEnabled {
-    $hyperV = Get-WindowsOptionalFeature -FeatureName Microsoft-Hyper-V-All -Online
-    if ($hyperV -ne $null -and $hyperV.State -eq "Enabled") {
-        return $true
-    }
-    return $false
-}
+$featureName = "Microsoft-Hyper-V"
 
-# Check Hyper-V status and exit accordingly
-if (Check-HyperVEnabled) {
-    Write-Host "Hyper-V is enabled. Exiting with code 0. No action needed."
+Write-Host "Checking the status of the Microsoft-Hyper-V feature..."
+$featureStatus = Get-WindowsOptionalFeature -Online -FeatureName $featureName
+
+if ($featureStatus.State -eq "Enabled") {
+    Write-Host "Microsoft-Hyper-V feature is enabled."
+    Write-Host "Detection script completed successfully." -ForegroundColor Green
     exit 0
 } else {
-    Write-Host "Hyper-V is not enabled. Exiting with code 1. Remediation required."
+    Write-Host "Microsoft-Hyper-V feature is not enabled. Current status is $($featureStatus.State)."
+    Write-Host "Detection script detected an issue." -ForegroundColor Red
     exit 1
 }
