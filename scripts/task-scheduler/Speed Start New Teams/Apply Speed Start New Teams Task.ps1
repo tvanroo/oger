@@ -40,7 +40,8 @@ Download-GitHubDirectory -RepoOwner $repoOwner -RepoName $repoName -Path $path -
 
 Import-Module ScheduledTasks
 
-$xmlFilePath = Join-Path -Path $localDir -ChildPath "Speed Start New Teams.xml"
+# Adjusted to the correct path
+$xmlFilePath = Join-Path -Path $localDir -ChildPath "Speed Start New Teams\Speed Start New Teams.xml"
 $taskName = "Speed Start New Teams"
 
 # Check if the scheduled task already exists and remove it if it does
