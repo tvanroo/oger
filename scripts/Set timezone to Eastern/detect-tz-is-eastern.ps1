@@ -1,23 +1,16 @@
-# Define the path to the registry key
-$registryPath = "HKLM:\SYSTEM\CurrentControlSet\Control\TimeZoneInformation"
-# Define the name of the property to check
-$propertyName = "TimeZoneKeyName"
-# Define the expected timezone value
-$expectedTimeZone = "Eastern Standard Time"
+Write-Host "Starting the detection process for Eastern Standard Time zone..." -ForegroundColor Green
 
-# Attempt to retrieve the current timezone from the registry
-try {
-    $currentTimeZone = Get-ItemProperty -Path $registryPath -Name $propertyName | Select-Object -ExpandProperty $propertyName
-} catch {
-    Write-Output "Failed to retrieve the timezone from the registry."
-    exit 1
-}
+$desiredTimeZone = "Eastern Standard Time"
 
-# Compare the retrieved timezone to the expected value
-if ($currentTimeZone -eq $expectedTimeZone) {
-    Write-Output "The system timezone is set correctly to '$expectedTimeZone'."
+Write-Host "Retrieving the current time zone..."
+$currentTimeZone = (Get-TimeZone).Id
+
+if ($currentTimeZone -eq $desiredTimeZone) {
+    Write-Host "Time zone is correctly set to Eastern Standard Time."
+    Write-Host "Detection script completed successfully." -ForegroundColor Green
     exit 0
 } else {
-    Write-Output "The system timezone is set to '$currentTimeZone' but should be '$expectedTimeZone'."
+    Write-Host "Time zone is not set to Eastern Standard Time. Current time zone is $currentTimeZone."
+    Write-Host "Detection script detected an issue." -ForegroundColor Red
     exit 1
 }
