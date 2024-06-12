@@ -1,6 +1,6 @@
 Import-Module ScheduledTasks
 
-$taskName = "FedScale Login Script Launcher"
+$taskName = "Speed Start New Teams"
 
 # Check if the scheduled task exists
 $task = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue

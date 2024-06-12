@@ -1,14 +1,10 @@
-Import-Module ScheduledTasks
+# Define the task name
+$taskName = "Speed Start New Teams"
 
-$taskName = "FedScale Login Script Launcher"
-
-# Check if the scheduled task exists
-$task = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
-
-if ($task) {
-    Write-Host "Task '$taskName' is present."
-    exit 1
+# Check if the scheduled task already exists and remove it if it does
+if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
+    Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
+    Write-Host "Existing task '$taskName' has been removed."
 } else {
-    Write-Host "Task '$taskName' is not present."
-    exit 0
+    Write-Host "Task '$taskName' does not exist."
 }
