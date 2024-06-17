@@ -26,6 +26,19 @@ foreach ($path in $tls11Paths) {
     Write-Host "Configured $path for TLS 1.1."
 }
 
+# TLS 1.2 and above Server and Client Configuration
+Write-Host "Configuring TLS 1.2 and higher settings..."
+$tls12Paths = @(
+    'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Server',
+    'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client'
+)
+foreach ($path in $tls12Paths) {
+    New-Item $path -Force | Out-Null
+    New-ItemProperty -Path $path -Name 'Enabled' -Value 1 -PropertyType 'DWORD' -Force
+    New-ItemProperty -Path $path -Name 'DisabledByDefault' -Value 0 -PropertyType 'DWORD' -Force
+    Write-Host "Configured $path for TLS 1.2."
+}
+
 # Update .NET Framework settings to use system defaults and strong crypto
 Write-Host "Updating .NET Framework settings to use system defaults and strong crypto..."
 $registryPaths = @(
