@@ -10,13 +10,18 @@ $logFilePath = "C:\Temp\updates$timestamp.txt"
 # Redirect output to log file
 Start-Transcript -Path $logFilePath
 
-# Install necessary package provider and modules
-Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
-Install-Module -Name PSWindowsUpdate -Force
-Import-Module -Name PSWindowsUpdate
+try {
+    # Install necessary package provider and modules
+    Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+    Install-Module -Name PSWindowsUpdate -Force
+    Import-Module -Name PSWindowsUpdate
 
-# Install Windows updates
-$updateResults = Install-WindowsUpdate -MicrosoftUpdate -AcceptAll -Verbose | Out-String
+    # Install Windows updates
+    $updateResults = Install-WindowsUpdate -MicrosoftUpdate -AcceptAll -Verbose | Out-String
+} catch {
+    "FAILURE" | Out-File -FilePath $logFilePath -Append
+    $_.Exception.Message | Out-File -FilePath $logFilePath -Append
+}
 
 # Stop transcript to end logging
 Stop-Transcript
@@ -29,5 +34,5 @@ if ($logContent -match "Found \[0\] Updates in pre search criteria" -or $logCont
     "FAILURE" | Out-File -FilePath $logFilePath -Append
 }
 
-# Return log file path for reference
-$logFilePath
+# Output the log file path
+Write-Output $logFilePath
