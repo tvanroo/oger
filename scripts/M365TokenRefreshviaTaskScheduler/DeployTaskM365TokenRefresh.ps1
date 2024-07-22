@@ -1,4 +1,4 @@
-#iex (irm https://raw.githubusercontent.com/tvanroo/oger/main/scripts/M365%20Token%20Refresh%20via%20Task%20Scheduler/Deploy%20Task%20M365%20Token%20Refresh.ps1)
+#iex (irm https://raw.githubusercontent.com/tvanroo/oger/main/scripts/M365TokenRefreshviaTaskScheduler/DeployTaskM365TokenRefresh.ps1)
 function Download-GitHubDirectory {
     param (
         [string]$RepoOwner,
@@ -33,7 +33,7 @@ function Download-GitHubDirectory {
 # Example usage
 $repoOwner = "tvanroo"
 $repoName = "oger"
-$path = "scripts/M365%20Token%20Refresh%20via%20Task%20Scheduler" # Ensure this exactly matches the GitHub path without leading or trailing slashes
+$path = "scripts/M365TokenRefreshviaTaskScheduler" # Ensure this exactly matches the GitHub path without leading or trailing slashes
 $localDir = "C:\install" # This is the base directory where files will be downloaded
 
 Download-GitHubDirectory -RepoOwner $repoOwner -RepoName $repoName -Path $path -LocalDir $localDir
