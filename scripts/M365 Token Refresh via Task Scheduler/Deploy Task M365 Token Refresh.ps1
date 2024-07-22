@@ -36,17 +36,11 @@ $repoName = "oger"
 $path = "scripts/M365%20Token%20Refresh%20via%20Task%20Scheduler" # Ensure this exactly matches the GitHub path without leading or trailing slashes
 $localDir = "C:\install" # This is the base directory where files will be downloaded
 
-# Replace forward slashes with backslashes in the $path to match the local directory structure
-$convertedPath = $path -replace "/", "\"
-
-# Combine the two variables
-$combinedPath = Join-Path -Path $localDir -ChildPath $convertedPath
-
-Download-GitHubDirectory -RepoOwner $repoOwner -RepoName $repoName -Path $path -LocalDir $combinedPath
+Download-GitHubDirectory -RepoOwner $repoOwner -RepoName $repoName -Path $path -LocalDir $localDir
 
 Import-Module ScheduledTasks
 
-$xmlFilePath = Join-Path -Path $combinedPath -ChildPath "M365TokenRefreshAllUsers.xml"
+$xmlFilePath = Join-Path -Path $localDir -ChildPath "M365TokenRefreshAllUsers.xml"
 $taskName = "M365 Token Refresh via Task Scheduler"
 
 # Check if the scheduled task already exists and remove it if it does
