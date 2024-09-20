@@ -26,6 +26,7 @@ Connect-AzAccount
 # Set the subscription
 Select-AzSubscription -SubscriptionId $subscriptionId
 
+
 # Get the storage account context using the storage account key
 $storageAccount = Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storageAccountName
 $storageAccountKey = (Get-AzStorageAccountKey -ResourceGroupName $resourceGroupName -Name $storageAccountName)[0].Value
