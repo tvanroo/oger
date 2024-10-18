@@ -15,3 +15,6 @@ Import-Module -Name PSWindowsUpdate -ErrorAction Stop
 
 # Trigger Windows Update and log the output
 Install-WindowsUpdate -MicrosoftUpdate -AcceptAll -AutoReboot -Verbose *>&1 | Out-File -FilePath $logFilePath
+
+#Rescan for available window supdates
+Get-WindowsUpdate -MicrosoftUpdate -Verbose *>&1 | Out-File -FilePath $logFilePath
