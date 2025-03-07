@@ -1,3 +1,6 @@
+#iex (irm https://raw.githubusercontent.com/tvanroo/oger/refs/heads/main/scripts/Install%20M365/deploy-M365.ps1)
+
+
 $prepPath = "c:\install\avd-prep\"
 
 # Major Section: Installing Microsoft 365
